@@ -82,27 +82,27 @@
 
       <div class="container">
         <div class="menu-filters">
-          <div class="menu-filter-tabs">
-            <span class="menu-filter-tab menu-filter-tab-active">All Dishes (35)</span>
-            <span class="menu-filter-tab">English &amp; European (10)</span>
-            <span class="menu-filter-tab">Italian &amp; Mediterranean (5)</span>
-            <span class="menu-filter-tab">Tasty Bowls (8)</span>
-            <span class="menu-filter-tab">Mexican Inspired (7)</span>
+          <div class="menu-filter-tabs" role="group" aria-label="Filter by category">
+            <button type="button" class="menu-filter-tab menu-filter-tab-active" data-category-filter="all" aria-pressed="true">All Dishes (30)</button>
+            <button type="button" class="menu-filter-tab" data-category-filter="classics" aria-pressed="false">English &amp; European (10)</button>
+            <button type="button" class="menu-filter-tab" data-category-filter="italian" aria-pressed="false">Italian &amp; Mediterranean (5)</button>
+            <button type="button" class="menu-filter-tab" data-category-filter="bowls" aria-pressed="false">Tasty Bowls (8)</button>
+            <button type="button" class="menu-filter-tab" data-category-filter="mexican" aria-pressed="false">Mexican Inspired (7)</button>
           </div>
           <label class="menu-search">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 10-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg>
-            <input type="text" placeholder="Search dish, spice, or base...">
+            <input type="text" id="menu-search-input" placeholder="Search dish, spice, or base...">
           </label>
         </div>
 
-        <div class="menu-dietary-row">
+        <div class="menu-dietary-row" role="group" aria-label="Filter by dietary tag">
           <span class="menu-dietary-label">Dietary tags:</span>
-          <span class="menu-filter-tab menu-filter-tab-active">Show All</span>
-          <span class="menu-filter-tab">🥦 Vegetarian</span>
-          <span class="menu-filter-tab">🍗 High Protein</span>
-          <span class="menu-filter-tab">🌾 Gluten-Free</span>
-          <span class="menu-filter-tab">🌶 Mild Spice</span>
-          <span class="menu-cart-pill">🛒 0 selected for your box</span>
+          <button type="button" class="menu-filter-tab menu-filter-tab-active" data-diet-filter="all" aria-pressed="true">Show All</button>
+          <button type="button" class="menu-filter-tab" data-diet-filter="vegetarian" aria-pressed="false">🥦 Vegetarian</button>
+          <button type="button" class="menu-filter-tab" data-diet-filter="high-protein" aria-pressed="false">🍗 High Protein</button>
+          <button type="button" class="menu-filter-tab" data-diet-filter="gluten-free" aria-pressed="false">🌾 Gluten-Free</button>
+          <button type="button" class="menu-filter-tab" data-diet-filter="mild-spice" aria-pressed="false">🌶 Mild Spice</button>
+          <span class="menu-cart-pill" id="cart-pill">🛒 0 selected for your box</span>
         </div>
       </div>
     </section>
@@ -110,12 +110,14 @@
     <section class="menu-catalog">
       <div class="container">
         <div class="menu-catalog-head">
-          <h2>Complete Kitchen Menu <span class="badge badge-dot">30 Featured Dishes</span></h2>
+          <h2>Complete Kitchen Menu <span class="badge badge-dot" id="dish-count-badge">30 Featured Dishes</span></h2>
           <p class="menu-note">Hot delivery ready to serve</p>
         </div>
 
-        <div class="dish-grid menu-dish-grid">
-          <article class="dish-card menu-dish-card">
+        <p class="menu-no-results" id="menu-no-results" hidden>No dishes match your filters — try clearing a category, dietary tag, or search term.</p>
+
+        <div class="dish-grid menu-dish-grid" id="dish-grid">
+          <article class="dish-card menu-dish-card" data-category="classics" data-diet="high-protein" data-search="roast chicken dinner succulent british roasted chicken served with rosemary potatoes, braised honey carrots, tender sweet peas, and our house rich thyme gravy.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#01 Classics</span>
                 <span class="menu-ribbon">Customer Favourite</span>
@@ -127,12 +129,12 @@
               <p>Succulent British roasted chicken served with rosemary potatoes, braised honey carrots, tender sweet peas, and our house rich thyme gravy.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild / Comforting</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-diet="high-protein" data-search="beef lasagne layer upon layer of 8-hour braised beef ragù, velvety nutmeg béchamel, delicate egg pasta, topped with melted mature cheddar &amp; mozzarella.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#02 Classics</span>
                 <span class="menu-ribbon">Chef Special</span>
@@ -144,12 +146,12 @@
               <p>Layer upon layer of 8-hour braised beef ragù, velvety nutmeg béchamel, delicate egg pasta, topped with melted mature cheddar &amp; mozzarella.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild &amp; Rich</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-search="chicken &amp; mushroom pie tender farm-reared chicken breast and chestnut mushrooms enveloped in a rich tarragon cream sauce under all-butter flaky puff pastry.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#03 Classics</span>
               <img src="assets/img/menu/03-chicken-mushroom-pie.jpg" alt="Chicken &amp; Mushroom Pie" loading="lazy">
@@ -160,12 +162,12 @@
               <p>Tender farm-reared chicken breast and chestnut mushrooms enveloped in a rich tarragon cream sauce under all-butter flaky puff pastry.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Comforting Classic</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-search="fish &amp; chips prime north sea cod in light golden crispy batter, served alongside thick-cut maris piper chips, garden crushed peas, and creamy caper tartare.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#04 Classics</span>
                 <span class="menu-ribbon">Friday Must-Have</span>
@@ -177,12 +179,12 @@
               <p>Prime North Sea cod in light golden crispy batter, served alongside thick-cut Maris Piper chips, garden crushed peas, and creamy caper tartare.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-diet="high-protein" data-search="spaghetti bolognese italian classic with rich ground beef simmered with san marzano plum tomatoes, oregano, garlic and red wine over bronze-die spaghetti.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#05 Classics</span>
               <img src="assets/img/menu/05-spaghetti-bolognese.jpg" alt="Spaghetti Bolognese" loading="lazy">
@@ -193,12 +195,12 @@
               <p>Italian classic with rich ground beef simmered with San Marzano plum tomatoes, oregano, garlic and red wine over bronze-die spaghetti.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-diet="mild-spice" data-search="chicken tikka masala tandoori-spiced marinated chicken chunks simmered in a gently spiced, creamy aromatic tomato &amp; fenugreek sauce with pillowy pilau rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#06 Classics</span>
                 <span class="menu-ribbon">Top Rated</span>
@@ -210,12 +212,12 @@
               <p>Tandoori-spiced marinated chicken chunks simmered in a gently spiced, creamy aromatic tomato &amp; fenugreek sauce with pillowy pilau rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Light-Medium</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-diet="high-protein" data-search="beef stroganoff prime seared beef strips sautéed with sliced button mushrooms, shallots, dijon mustard and velvety sour cream over steamed parsley potatoes.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#07 Classics</span>
               <img src="assets/img/menu/07-beef-stroganoff.jpg" alt="Beef Stroganoff" loading="lazy">
@@ -226,12 +228,12 @@
               <p>Prime seared beef strips sautéed with sliced button mushrooms, shallots, Dijon mustard and velvety sour cream over steamed parsley potatoes.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild &amp; Velvety</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-diet="mild-spice" data-search="chicken enchiladas oven-baked rolled tortillas filled with slow-cooked shredded chicken, sweet corn and black beans, glazed in ancho chilli sauce and melted cheese.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#08 Classics</span>
               <img src="assets/img/menu/08-chicken-enchiladas.jpg" alt="Chicken Enchiladas" loading="lazy">
@@ -242,12 +244,12 @@
               <p>Oven-baked rolled tortillas filled with slow-cooked shredded chicken, sweet corn and black beans, glazed in ancho chilli sauce and melted cheese.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-search="lamb tagine melt-in-the-mouth welsh lamb slow-cooked with turkish apricots, cinnamon, chickpeas, and roasted flaked almonds over jewelled herbal couscous.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#09 Classics</span>
                 <span class="menu-ribbon">Slow Cooked 10hrs</span>
@@ -259,12 +261,12 @@
               <p>Melt-in-the-mouth Welsh lamb slow-cooked with Turkish apricots, cinnamon, chickpeas, and roasted flaked almonds over jewelled herbal couscous.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Fragrant &amp; Mild</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="classics" data-diet="high-protein" data-search="chicken fajita bowl smoky grilled paprika chicken strips with caramelized bell peppers and red onions served over lime coriander rice with salsa fresca.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#10 Classics</span>
               <img src="assets/img/menu/10-chicken-fajita-bowl.jpg" alt="Chicken Fajita Bowl" loading="lazy">
@@ -275,12 +277,12 @@
               <p>Smoky grilled paprika chicken strips with caramelized bell peppers and red onions served over lime coriander rice with salsa fresca.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="italian" data-diet="gluten-free" data-search="chicken cacciatore tuscan 'hunter's style' chicken thighs braised slowly with san marzano tomatoes, sweet bell peppers, kalamata olives, rosemary and garlic.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#11 Italian &amp; Med</span>
               <img src="assets/img/menu/11-chicken-cacciatore.jpg" alt="Chicken Cacciatore" loading="lazy">
@@ -291,12 +293,12 @@
               <p>Tuscan 'hunter's style' chicken thighs braised slowly with San Marzano tomatoes, sweet bell peppers, Kalamata olives, rosemary and garlic.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Herb Infused</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="italian" data-diet="high-protein" data-search="mediterranean chicken marinated chicken breast with lemon zest, sun-dried tomatoes, artichoke hearts, and creamy greek feta cheese alongside roasted courgettes.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#12 Italian &amp; Med</span>
                 <span class="menu-ribbon">Clean Eating</span>
@@ -308,12 +310,12 @@
               <p>Marinated chicken breast with lemon zest, sun-dried tomatoes, artichoke hearts, and creamy Greek feta cheese alongside roasted courgettes.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Zesty &amp; Fresh</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="italian" data-diet="vegetarian" data-search="stuffed peppers sweet red and yellow bell peppers roasted until tender, filled with spiced herb quinoa, toasted pine nuts, spinach, and melted french chevre.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#13 Italian &amp; Med</span>
               <img src="assets/img/menu/13-stuffed-peppers.jpg" alt="Stuffed Peppers" loading="lazy">
@@ -324,12 +326,12 @@
               <p>Sweet red and yellow bell peppers roasted until tender, filled with spiced herb quinoa, toasted pine nuts, spinach, and melted French chevre.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Nourishing</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="italian" data-diet="high-protein" data-search="greek moussaka authentic layers of caramelized aubergine, thinly sliced potato and seasoned spiced british minced lamb under a golden, pillowy béchamel crown.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#14 Italian &amp; Med</span>
               <img src="assets/img/menu/14-greek-moussaka.jpg" alt="Greek Moussaka" loading="lazy">
@@ -340,12 +342,12 @@
               <p>Authentic layers of caramelized aubergine, thinly sliced potato and seasoned spiced British minced lamb under a golden, pillowy béchamel crown.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Traditional Warmth</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="italian" data-search="creamy carbonara / chicken bake silky egg yolk and aged pecorino romano emulsion with smoked pancetta lardons and cracked black pepper, garnished with garden parsley.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#15 Italian &amp; Med</span>
               <img src="assets/img/menu/15-carbonara-chicken-bake.jpg" alt="Creamy Carbonara / Chicken Bake" loading="lazy">
@@ -356,12 +358,12 @@
               <p>Silky egg yolk and aged Pecorino Romano emulsion with smoked pancetta lardons and cracked black pepper, garnished with garden parsley.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Rich &amp; Comforting</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-diet="high-protein" data-search="katsu bowl golden panko breaded chicken cutlet sliced over steaming short-grain jasmine rice, accompanied by rich house katsu curry sauce and pickled ginger.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#16 Tasty Bowls</span>
                 <span class="menu-ribbon">Best Seller</span>
@@ -373,12 +375,12 @@
               <p>Golden panko breaded chicken cutlet sliced over steaming short-grain jasmine rice, accompanied by rich house katsu curry sauce and pickled ginger.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild Umami</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-diet="gluten-free" data-search="massaman curry tender slow-simmered beef with baby potatoes in a coconut milk reduction infused with lemongrass, cardamom, tamarind and toasted crushed peanuts.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#17 Tasty Bowls</span>
               <img src="assets/img/menu/17-massaman-curry.jpg" alt="Massaman Curry" loading="lazy">
@@ -389,12 +391,12 @@
               <p>Tender slow-simmered beef with baby potatoes in a coconut milk reduction infused with lemongrass, cardamom, tamarind and toasted crushed peanuts.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild &amp; Nutty</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-diet="gluten-free" data-search="thai curry fragrant green coconut curry with kaffir lime, sweet thai holy basil, bamboo shoots, mangetout and chicken breast served with steamed jasmine rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#18 Tasty Bowls</span>
               <img src="assets/img/menu/18-thai-curry.jpg" alt="Thai Curry" loading="lazy">
@@ -405,12 +407,12 @@
               <p>Fragrant green coconut curry with kaffir lime, sweet Thai holy basil, bamboo shoots, mangetout and chicken breast served with steamed jasmine rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Light-Medium</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-search="japanese curry sweet and savory homestyle tokyo curry with tender stewed root vegetables and beef simmered gently in apple-infused curry broth over rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#19 Tasty Bowls</span>
               <img src="assets/img/menu/19-japanese-curry.jpg" alt="Japanese Curry" loading="lazy">
@@ -421,12 +423,12 @@
               <p>Sweet and savory homestyle Tokyo curry with tender stewed root vegetables and beef simmered gently in apple-infused curry broth over rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild &amp; Sweet</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-diet="high-protein" data-search="chicken manchurian crisp seasoned chicken morsels tossed in a tangy ginger, garlic, soy and spring onion glaze with egg vegetable fried rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#20 Tasty Bowls</span>
               <img src="assets/img/menu/20-chicken-manchurian.jpg" alt="Chicken Manchurian" loading="lazy">
@@ -437,12 +439,12 @@
               <p>Crisp seasoned chicken morsels tossed in a tangy ginger, garlic, soy and spring onion glaze with egg vegetable fried rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Tangy &amp; Zesty</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-diet="vegetarian" data-search="vegetable stir-fry bowl crisp wok-tossed bok choy, sugar snap peas, shiitake mushrooms and water chestnuts in light sesame-tamari sauce over nutty brown rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#21 Tasty Bowls</span>
               <img src="assets/img/menu/21-vegetable-stir-fry-bowl.jpg" alt="Vegetable Stir-fry Bowl" loading="lazy">
@@ -453,12 +455,12 @@
               <p>Crisp wok-tossed bok choy, sugar snap peas, shiitake mushrooms and water chestnuts in light sesame-tamari sauce over nutty brown rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Fresh &amp; Light</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-diet="high-protein" data-search="teriyaki salmon bowl loch duart seared salmon fillet basted with our house honey-mirin glaze, served with steamed edamame, pickled cucumber ribbons, and sesame seeds.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#22 Tasty Bowls</span>
                 <span class="menu-ribbon">Omega-3 Rich</span>
@@ -470,12 +472,12 @@
               <p>Loch Duart seared salmon fillet basted with our house honey-mirin glaze, served with steamed edamame, pickled cucumber ribbons, and sesame seeds.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild Sweet Savoury</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="bowls" data-diet="vegetarian" data-search="spicy tofu bokum crisp golden bean curd pan-glazed in a mild korean chili, toasted sesame oil and garlic reduction with sautéed greens and brown rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#23 Tasty Bowls</span>
               <img src="assets/img/menu/23-spicy-tofu-bokum.jpg" alt="Spicy Tofu Bokum" loading="lazy">
@@ -486,12 +488,12 @@
               <p>Crisp golden bean curd pan-glazed in a mild Korean chili, toasted sesame oil and garlic reduction with sautéed greens and brown rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Lightly Spiced</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="mexican" data-diet="high-protein" data-search="chicken tinga bowl shredded farm chicken poached and gently simmered in a mildly smoky chipotle and roasted tomato sauce, served over black bean cilantro rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#24 Mexican</span>
                 <span class="menu-ribbon">Crowd Pleaser</span>
@@ -503,12 +505,12 @@
               <p>Shredded farm chicken poached and gently simmered in a mildly smoky chipotle and roasted tomato sauce, served over black bean cilantro rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Smoky Mild</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="mexican" data-diet="high-protein" data-search="chilli con carne prime scottish minced beef, dark kidney beans, sweet bell peppers and cocoa powder simmered low and slow with warm spices over fluffy white rice.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#25 Mexican</span>
               <img src="assets/img/menu/25-chilli-con-carne.jpg" alt="Chilli Con Carne" loading="lazy">
@@ -519,12 +521,12 @@
               <p>Prime Scottish minced beef, dark kidney beans, sweet bell peppers and cocoa powder simmered low and slow with warm spices over fluffy white rice.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Medium Heat</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="mexican" data-diet="vegetarian" data-search="mexican veggie chilli three-bean stew made with pinto, black and kidney beans, sweet roasted butternut squash chunks, sweetcorn, and fresh avocado lime relish.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#26 Mexican</span>
               <img src="assets/img/menu/26-mexican-veggie-chilli.jpg" alt="Mexican Veggie Chilli" loading="lazy">
@@ -535,12 +537,12 @@
               <p>Three-bean stew made with pinto, black and kidney beans, sweet roasted butternut squash chunks, sweetcorn, and fresh avocado lime relish.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild &amp; Earthy</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="mexican" data-diet="high-protein" data-search="chicken enchiladas deluxe double-stuffed chicken with sweet peppers and cream cheese in stoneground corn tortillas, smothered in roasted green tomatillo salsa and cheddar.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#27 Mexican</span>
               <img src="assets/img/menu/27-chicken-enchiladas-deluxe.jpg" alt="Chicken Enchiladas Deluxe" loading="lazy">
@@ -551,12 +553,12 @@
               <p>Double-stuffed chicken with sweet peppers and cream cheese in stoneground corn tortillas, smothered in roasted green tomatillo salsa and cheddar.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild-Medium</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="mexican" data-diet="high-protein" data-search="beef enchiladas slow-braised spiced minced beef enveloped in warm corn tortillas, glazed with smoky guajillo sauce, melted cheese and served with slow pinto beans.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#28 Mexican</span>
               <img src="assets/img/menu/28-beef-enchiladas.jpg" alt="Beef Enchiladas" loading="lazy">
@@ -567,12 +569,12 @@
               <p>Slow-braised spiced minced beef enveloped in warm corn tortillas, glazed with smoky guajillo sauce, melted cheese and served with slow pinto beans.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Savoury Warmth</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="mexican" data-diet="high-protein" data-search="loaded burrito bowl all the vibrancy of a burrito in a nourishing bowl: seasoned grilled meat or beans, charred fire corn, avocado cream, crisp slaw and salsa.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#29 Mexican</span>
                 <span class="menu-ribbon">Staff Pick</span>
@@ -584,12 +586,12 @@
               <p>All the vibrancy of a burrito in a nourishing bowl: seasoned grilled meat or beans, charred fire corn, avocado cream, crisp slaw and salsa.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Mild &amp; Crisp</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
 
-          <article class="dish-card menu-dish-card">
+          <article class="dish-card menu-dish-card" data-category="mexican" data-diet="high-protein" data-search="pollo chorizo succulent pan-fried chicken strips combined with artisanal smoked spanish chorizo, roasted red peppers, baby potatoes and parsley.">
             <div class="menu-dish-media">
               <span class="menu-dish-num">#30 Mexican</span>
               <img src="assets/img/menu/30-pollo-chorizo.jpg" alt="Pollo Chorizo" loading="lazy">
@@ -600,7 +602,7 @@
               <p>Succulent pan-fried chicken strips combined with artisanal smoked Spanish chorizo, roasted red peppers, baby potatoes and parsley.</p>
               <div class="menu-dish-footer">
                 <span class="menu-flavor">Smoky Savoury</span>
-                <span class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</span>
+                <button type="button" class="btn btn-primary btn-sm menu-add-btn">+ Add to Box</button>
               </div>
             </div>
           </article>
@@ -777,5 +779,6 @@
     </div>
   </footer>
 
+  <script src="menu-filters.js"></script>
 </body>
 </html>

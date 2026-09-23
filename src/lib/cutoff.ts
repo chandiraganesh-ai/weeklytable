@@ -81,3 +81,26 @@ export function isDeliveryDateEligible(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)) return false;
   return deliveryDate >= getNextEligibleDate(config, now);
 }
+
+const WEEKDAYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const;
+
+export type WeekdayName = (typeof WEEKDAYS)[number];
+
+/**
+ * The day of the week a "YYYY-MM-DD" delivery date falls on. A plain
+ * calendar date has no timezone of its own, so this is pure date math
+ * (UTC-anchored) — no timezone conversion needed or wanted here.
+ */
+export function getWeekday(deliveryDate: string): WeekdayName {
+  const [year, month, day] = deliveryDate.split("-").map(Number);
+  const dayIndex = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  return WEEKDAYS[dayIndex];
+}

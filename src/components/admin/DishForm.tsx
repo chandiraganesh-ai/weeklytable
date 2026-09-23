@@ -1,3 +1,13 @@
+const WEEKDAYS = [
+  { value: "monday", label: "Mon" },
+  { value: "tuesday", label: "Tue" },
+  { value: "wednesday", label: "Wed" },
+  { value: "thursday", label: "Thu" },
+  { value: "friday", label: "Fri" },
+  { value: "saturday", label: "Sat" },
+  { value: "sunday", label: "Sun" },
+] as const;
+
 type DishFormValues = {
   name: string;
   category: string;
@@ -5,6 +15,7 @@ type DishFormValues = {
   description: string;
   imageUrl: string;
   isActive: boolean;
+  availableDays: string[];
 };
 
 export default function DishForm({
@@ -70,6 +81,24 @@ export default function DishForm({
           required
         />
       </label>
+      <fieldset className="flex flex-col gap-1 text-sm">
+        <legend className="mb-1">Available days</legend>
+        <div className="flex flex-wrap gap-3">
+          {WEEKDAYS.map((day) => (
+            <label key={day.value} className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                name="availableDays"
+                value={day.value}
+                defaultChecked={
+                  initial ? initial.availableDays.includes(day.value) : true
+                }
+              />
+              {day.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"

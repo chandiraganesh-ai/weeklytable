@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
-import { isDeliveryDateEligible } from "@/lib/cutoff";
+import { isDeliveryDateEligible, getWeekday } from "@/lib/cutoff";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -82,11 +82,23 @@ export async function POST(req: NextRequest) {
   const uniqueDishIds = Array.from(new Set(dishIds));
   const activeDishes = await prisma.dish.findMany({
     where: { id: { in: uniqueDishIds }, isActive: true },
-    select: { id: true, name: true },
+    select: { id: true, name: true, availableDays: true },
   });
   const dishById = new Map(activeDishes.map((d) => [d.id, d]));
   if (activeDishes.length !== uniqueDishIds.length) {
     return badRequest("One or more selected dishes are no longer available.");
+  }
+
+  // Not every dish is made every day — re-check independently of whatever
+  // the client filtered client-side.
+  const weekday = getWeekday(deliveryDate);
+  const unavailableToday = activeDishes.filter(
+    (d) => !d.availableDays.includes(weekday),
+  );
+  if (unavailableToday.length > 0) {
+    return badRequest(
+      `${unavailableToday.map((d) => d.name).join(", ")} ${unavailableToday.length === 1 ? "is" : "are"} not available for delivery on that day — please refresh and choose again.`,
+    );
   }
 
   // --- Everything validated — create the Stripe Checkout Session first, so

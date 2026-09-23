@@ -20,6 +20,16 @@ enum OrderStatus {
   cancelled
 }
 
+enum Weekday {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
 model Dish {
   id          String  @id @default(uuid())
   name        String  @unique
@@ -28,6 +38,11 @@ model Dish {
   description String
   imageUrl    String
   isActive    Boolean @default(true)
+
+  // Which days of the week this dish can be delivered on — not every dish
+  // is cooked every day. Defaults to every day so existing/new dishes stay
+  // orderable unless an admin deliberately narrows this.
+  availableDays Weekday[] @default([monday, tuesday, wednesday, thursday, friday, saturday, sunday])
 
   orderItems OrderItem[]
 

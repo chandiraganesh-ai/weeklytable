@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/dal";
+import { Weekday } from "@/generated/prisma/enums";
+
+const VALID_WEEKDAYS = new Set(Object.values(Weekday));
 
 function readDishFields(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -12,9 +15,16 @@ function readDishFields(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
   const isActive = formData.get("isActive") === "on";
+  const availableDays = formData
+    .getAll("availableDays")
+    .map(String)
+    .filter((d): d is Weekday => VALID_WEEKDAYS.has(d as Weekday));
 
   if (!name || !category || !description || !imageUrl) {
     throw new Error("Name, category, description, and image URL are required.");
+  }
+  if (availableDays.length === 0) {
+    throw new Error("Select at least one available day.");
   }
 
   return {
@@ -24,6 +34,7 @@ function readDishFields(formData: FormData) {
     description,
     imageUrl,
     isActive,
+    availableDays,
   };
 }
 

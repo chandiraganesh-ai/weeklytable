@@ -6,6 +6,7 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Weekday } from "../src/generated/prisma/enums";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -46,6 +47,14 @@ const dishes = [
     dietaryTag: "high-protein",
     description: "Panko-crumbed chicken, katsu curry sauce, and steamed rice.",
     imageUrl: "/dishes/placeholder.svg",
+    // Demonstrates day-restriction: a weekday-only kitchen special.
+    availableDays: [
+      Weekday.monday,
+      Weekday.tuesday,
+      Weekday.wednesday,
+      Weekday.thursday,
+      Weekday.friday,
+    ],
   },
   {
     name: "Vegetable Stir-Fry Bowl",
@@ -60,6 +69,8 @@ const dishes = [
     dietaryTag: "high-protein",
     description: "Slow-cooked beef and bean chilli with rice.",
     imageUrl: "/dishes/placeholder.svg",
+    // Demonstrates day-restriction: a weekend-only special.
+    availableDays: [Weekday.saturday, Weekday.sunday],
   },
 ];
 

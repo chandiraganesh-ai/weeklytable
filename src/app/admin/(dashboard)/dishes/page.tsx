@@ -4,6 +4,24 @@ import { toggleDishActive } from "./actions";
 
 export const dynamic = "force-dynamic";
 
+const DAY_ABBR: Record<string, string> = {
+  monday: "Mon",
+  tuesday: "Tue",
+  wednesday: "Wed",
+  thursday: "Thu",
+  friday: "Fri",
+  saturday: "Sat",
+  sunday: "Sun",
+};
+const DAY_ORDER = Object.keys(DAY_ABBR);
+
+function formatDays(days: string[]) {
+  if (days.length === 7) return "Every day";
+  return DAY_ORDER.filter((d) => days.includes(d))
+    .map((d) => DAY_ABBR[d])
+    .join(", ");
+}
+
 export default async function AdminDishesPage() {
   const dishes = await prisma.dish.findMany({ orderBy: { name: "asc" } });
 
@@ -25,6 +43,7 @@ export default async function AdminDishesPage() {
             <th className="py-2 pr-4">Name</th>
             <th className="py-2 pr-4">Category</th>
             <th className="py-2 pr-4">Dietary tag</th>
+            <th className="py-2 pr-4">Available days</th>
             <th className="py-2 pr-4">Active</th>
             <th className="py-2 pr-4"></th>
           </tr>
@@ -35,6 +54,7 @@ export default async function AdminDishesPage() {
               <td className="py-2 pr-4">{dish.name}</td>
               <td className="py-2 pr-4">{dish.category}</td>
               <td className="py-2 pr-4">{dish.dietaryTag ?? "—"}</td>
+              <td className="py-2 pr-4">{formatDays(dish.availableDays)}</td>
               <td className="py-2 pr-4">{dish.isActive ? "Yes" : "No"}</td>
               <td className="flex gap-3 py-2 pr-4">
                 <Link

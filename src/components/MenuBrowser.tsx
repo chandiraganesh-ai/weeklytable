@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { getNextEligibleDate, type CutoffConfigLike } from "@/lib/cutoff";
+import {
+  getNextEligibleDate,
+  getWeekday,
+  type CutoffConfigLike,
+  type WeekdayName,
+} from "@/lib/cutoff";
 
 export type DishView = {
   id: string;
@@ -11,6 +16,17 @@ export type DishView = {
   dietaryTag: string | null;
   description: string;
   imageUrl: string;
+  availableDays: WeekdayName[];
+};
+
+const WEEKDAY_LABELS: Record<WeekdayName, string> = {
+  sunday: "Sunday",
+  monday: "Monday",
+  tuesday: "Tuesday",
+  wednesday: "Wednesday",
+  thursday: "Thursday",
+  friday: "Friday",
+  saturday: "Saturday",
 };
 
 export type PlanView = {
@@ -61,12 +77,26 @@ export default function MenuBrowser({
     [cutoffConfig],
   );
 
-  const categories = useMemo(() => {
-    const seen = new Set(dishes.map((d) => d.category));
-    return Array.from(seen);
-  }, [dishes]);
+  const deliveryWeekday = useMemo(
+    () => getWeekday(nextEligibleDate),
+    [nextEligibleDate],
+  );
 
-  const filteredDishes = dishes.filter((dish) => {
+  // Not every dish is cooked every day — hard-filter to what's actually
+  // available for the delivery date before anything else (category/search
+  // filters operate on top of this, they never bring back an unavailable
+  // dish). The server re-enforces this independently at order time.
+  const dishesAvailableToday = useMemo(
+    () => dishes.filter((d) => d.availableDays.includes(deliveryWeekday)),
+    [dishes, deliveryWeekday],
+  );
+
+  const categories = useMemo(() => {
+    const seen = new Set(dishesAvailableToday.map((d) => d.category));
+    return Array.from(seen);
+  }, [dishesAvailableToday]);
+
+  const filteredDishes = dishesAvailableToday.filter((dish) => {
     const matchesCategory =
       categoryFilter === "all" || dish.category === categoryFilter;
     const matchesSearch =
@@ -76,6 +106,9 @@ export default function MenuBrowser({
         .includes(search.trim().toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const notEnoughDishesToday =
+    selectedPlan !== null && dishesAvailableToday.length < mealCount;
 
   function selectPlan(planId: string) {
     setSelectedPlanId(planId);
@@ -167,6 +200,20 @@ export default function MenuBrowser({
             {selectedDishIds.length} of {mealCount} selected
           </span>
         </div>
+        <p className="text-sm text-neutral-600">
+          Showing what&apos;s available for {WEEKDAY_LABELS[deliveryWeekday]}{" "}
+          delivery ({nextEligibleDate}) — not every dish is made every day.
+        </p>
+
+        {notEnoughDishesToday && (
+          <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800" role="alert">
+            Only {dishesAvailableToday.length} dish
+            {dishesAvailableToday.length === 1 ? "" : "es"} available for{" "}
+            {WEEKDAY_LABELS[deliveryWeekday]} delivery — not enough to fill{" "}
+            {selectedPlan?.label}. Try a smaller plan, or check back for a
+            different delivery day.
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap gap-2">
@@ -204,6 +251,12 @@ export default function MenuBrowser({
             className="ml-auto rounded-md border border-neutral-300 px-3 py-1 text-sm"
           />
         </div>
+
+        {filteredDishes.length === 0 && (
+          <p className="text-sm text-neutral-500">
+            No dishes match — try a different category or search term.
+          </p>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {filteredDishes.map((dish) => {

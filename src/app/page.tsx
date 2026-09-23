@@ -18,6 +18,7 @@ export default async function Home() {
         dietaryTag: true,
         description: true,
         imageUrl: true,
+        availableDays: true,
       },
     }),
     prisma.plan.findMany({

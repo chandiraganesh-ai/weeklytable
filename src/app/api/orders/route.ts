@@ -128,6 +128,17 @@ export async function POST(req: NextRequest) {
   const orderId = randomUUID();
   const origin = req.nextUrl.origin;
 
+  // The line item is priced per-plan, not per-dish (no à la carte pricing),
+  // so the chosen dishes would otherwise never appear anywhere on the
+  // Stripe receipt. Stripe's receipt template only ever renders the line
+  // item's name (verified against a real receipt page) — product_data's
+  // own `description` field is stored but never shown — so the dish list
+  // has to go in the name itself.
+  const itemsSummary = [...items]
+    .sort((a, b) => a.deliveryDate.localeCompare(b.deliveryDate))
+    .map((item) => `${dishById.get(item.dishId)!.name} (${item.deliveryDate})`)
+    .join(", ");
+
   let session;
   try {
     session = await stripe.checkout.sessions.create({
@@ -137,7 +148,7 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: "gbp",
             unit_amount: plan.priceGbp,
-            product_data: { name: plan.label },
+            product_data: { name: `${plan.label} — ${itemsSummary}` },
           },
           quantity: 1,
         },

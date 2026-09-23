@@ -1,0 +1,108 @@
+// Weekly Table data model.
+// See ~/.claude/plans/i-want-to-build-expressive-wall.md for the full design rationale.
+//
+// Deliberately absent by design (see the plan's "Explicitly out of scope"):
+// no Customer/Account/Subscription tables, no per-dish price field.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  pending_payment
+  paid
+  fulfilled
+  cancelled
+}
+
+model Dish {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  category    String
+  dietaryTag  String?
+  description String
+  imageUrl    String
+  isActive    Boolean @default(true)
+
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plan {
+  id        String  @id @default(uuid())
+  label     String
+  mealCount Int
+  priceGbp  Int // integer pence, never float
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Effectively a singleton row (query by a known id, e.g. "default").
+model CutoffConfig {
+  id         String   @id @default("default")
+  leadDays   Int      @default(1)
+  cutoffTime String // "HH:MM" 24h, interpreted in `timezone`
+  timezone   String   @default("Europe/London")
+  updatedAt  DateTime @updatedAt
+}
+
+model Order {
+  id String @id @default(uuid())
+
+  deliveryDate DateTime @db.Date
+
+  planId               String
+  plan                 Plan   @relation(fields: [planId], references: [id])
+  planLabelSnapshot    String
+  planPriceGbpSnapshot Int
+
+  contactName    String
+  contactPhone   String
+  contactEmail   String
+  deliveryAddress String
+
+  status OrderStatus @default(pending_payment)
+
+  stripeCheckoutSessionId String  @unique
+  stripePaymentIntentId   String?
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([deliveryDate])
+  @@index([status])
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  dishId          String
+  dish            Dish   @relation(fields: [dishId], references: [id])
+  dishNameSnapshot String
+
+  @@index([orderId])
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}

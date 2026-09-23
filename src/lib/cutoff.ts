@@ -1,6 +1,7 @@
-// Client-side, advisory-only calculation of the next eligible delivery date.
-// The server is always the authority on this — see the order-creation route
-// in a later phase, which re-validates independently of anything computed here.
+// Isomorphic cutoff-date math: used client-side for an advisory display, and
+// server-side (in the order-creation route) as the authoritative check.
+// Never trust a deliveryDate the client sends without re-validating it here
+// against a freshly-read CutoffConfig.
 
 export type CutoffConfigLike = {
   leadDays: number;
@@ -64,4 +65,19 @@ export function getNextEligibleDate(
 
   const eligible = addDays(year, month, day, config.leadDays + extraDay);
   return formatDateISO(eligible.year, eligible.month, eligible.day);
+}
+
+/**
+ * Authoritative check: is `deliveryDate` ("YYYY-MM-DD") still orderable
+ * right now, given the cutoff config? ISO date strings compare
+ * lexicographically the same as chronologically, so a plain string
+ * comparison against the earliest eligible date is sufficient.
+ */
+export function isDeliveryDateEligible(
+  deliveryDate: string,
+  config: CutoffConfigLike,
+  now: Date = new Date(),
+): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)) return false;
+  return deliveryDate >= getNextEligibleDate(config, now);
 }

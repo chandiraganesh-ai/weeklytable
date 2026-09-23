@@ -46,6 +46,12 @@ export default function MenuBrowser({
     plans[0]?.id ?? null,
   );
   const [selectedDishIds, setSelectedDishIds] = useState<string[]>([]);
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) ?? null;
   const mealCount = selectedPlan?.mealCount ?? 0;
@@ -86,8 +92,50 @@ export default function MenuBrowser({
     });
   }
 
+  const hasContactDetails =
+    contactName.trim() !== "" &&
+    contactPhone.trim() !== "" &&
+    contactEmail.trim() !== "" &&
+    deliveryAddress.trim() !== "";
+
   const canCheckout =
-    selectedPlan !== null && selectedDishIds.length === mealCount;
+    selectedPlan !== null &&
+    selectedDishIds.length === mealCount &&
+    hasContactDetails;
+
+  async function handleCheckout() {
+    if (!selectedPlan) return;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planId: selectedPlan.id,
+          dishIds: selectedDishIds,
+          deliveryDate: nextEligibleDate,
+          contactName,
+          contactPhone,
+          contactEmail,
+          deliveryAddress,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error ?? "Something went wrong. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      window.location.href = data.checkoutUrl;
+    } catch {
+      setSubmitError("Could not reach the server. Please try again.");
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8 p-6">
@@ -197,7 +245,7 @@ export default function MenuBrowser({
         </div>
       </section>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4">
+      <section className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4">
         <h2 className="text-xl font-semibold">3. Delivery &amp; payment</h2>
         <p className="text-sm text-neutral-600">
           Next available delivery date:{" "}
@@ -206,16 +254,72 @@ export default function MenuBrowser({
           </span>{" "}
           (orders must be placed at least {cutoffConfig.leadDays} day
           {cutoffConfig.leadDays === 1 ? "" : "s"} ahead, by{" "}
-          {cutoffConfig.cutoffTime} the day before).
+          {cutoffConfig.cutoffTime} the day before). This date is re-checked
+          when you pay — it can move on if you take a while to check out.
         </p>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1 text-sm">
+            Name
+            <input
+              type="text"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Phone
+            <input
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Email
+            <input
+              type="email"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            Delivery address
+            <textarea
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              rows={2}
+              required
+            />
+          </label>
+        </div>
+
+        {submitError && (
+          <p className="text-sm text-red-600" role="alert">
+            {submitError}
+          </p>
+        )}
+
         <button
           type="button"
-          disabled={!canCheckout}
-          title="Payments are coming in a later phase"
-          className="cursor-not-allowed rounded-md bg-neutral-300 px-4 py-2 font-medium text-neutral-600"
+          disabled={!canCheckout || isSubmitting}
+          onClick={handleCheckout}
+          className={`rounded-md px-4 py-2 font-medium text-white transition ${
+            canCheckout && !isSubmitting
+              ? "bg-neutral-900 hover:bg-neutral-700"
+              : "cursor-not-allowed bg-neutral-300 text-neutral-600"
+          }`}
         >
-          Pay {selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""} — Coming
-          soon
+          {isSubmitting
+            ? "Redirecting to payment…"
+            : `Pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""}`}
         </button>
       </section>
     </div>

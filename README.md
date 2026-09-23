@@ -1,39 +1,22 @@
 # Weekly Table
 
-A one-page marketing site for Weekly Table, a local hot-meal delivery service. Plain
-HTML/CSS, no build step, no framework, hosted free on GitHub Pages.
+A meal-delivery ordering platform: customers pre-order meals (at least 1 day ahead of delivery, cutoff TBD) by picking a pricing tier and that many dishes, paying once via Stripe. No customer accounts. An admin panel manages orders, the menu, and pricing.
 
-## Preview locally
+This is a full rebuild of an earlier static-HTML MVP — see `/Users/ganeshkumarcr/.claude/plans/i-want-to-build-expressive-wall.md` for the full architecture plan (data model, order flow, admin panel design, GDPR notes, phased rollout).
+
+## Stack
+
+Next.js (App Router, TypeScript) + Tailwind CSS, deployed on Vercel. Postgres (Neon) + Prisma and Stripe Checkout land in later phases.
+
+## Local development
 
 ```
-python3 -m http.server 8000
+npm install
+npm run dev
 ```
 
-Then open http://localhost:8000.
+Open http://localhost:3000.
 
-## Structure
+## Status
 
-- `index.html` — the page: hero, how it works, this week's menu, why Weekly Table,
-  closing CTA, testimonials, footer.
-- `styles.css` — styling, using the color/type/spacing tokens from the Weekly Table
-  design system.
-- `assets/img/` — logo, favicon and photography.
-- `.nojekyll` — tells GitHub Pages to serve the files as-is (no Jekyll processing).
-
-## Enabling GitHub Pages
-
-In the repo settings: **Settings → Pages → Source → Deploy from a branch**, branch
-`main`, folder `/ (root)`.
-
-## Pointing the GoDaddy domain here
-
-Once the domain is decided, add a `CNAME` file to the repo root containing it, then at
-GoDaddy DNS add either:
-
-- **Apex domain** (e.g. `weeklytable.co.uk`): four `A` records pointing at GitHub Pages'
-  IPs (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`), plus
-  a `CNAME` record for `www` pointing at `<username>.github.io`.
-- **`www` as primary** (e.g. `www.weeklytable.co.uk`): a single `CNAME` record for `www`
-  pointing at `<username>.github.io`.
-
-After DNS propagates, enable **Enforce HTTPS** under the repo's Pages settings.
+**Phase 1 in progress:** bare scaffold, no database, no payments yet. See the plan doc for what's next.

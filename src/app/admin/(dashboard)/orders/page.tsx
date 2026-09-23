@@ -20,13 +20,17 @@ export default async function AdminOrdersPage({
   const where: Prisma.OrderWhereInput = {};
   if (params.status) where.status = params.status as Prisma.OrderWhereInput["status"];
   if (params.deliveryDate) {
-    where.deliveryDate = new Date(`${params.deliveryDate}T00:00:00.000Z`);
+    // An order can now span several delivery dates (one per meal) — "filter
+    // by date" means "orders with at least one meal on this date".
+    where.items = {
+      some: { deliveryDate: new Date(`${params.deliveryDate}T00:00:00.000Z`) },
+    };
   }
 
   const orders = await prisma.order.findMany({
     where,
-    orderBy: { deliveryDate: "asc" },
-    include: { items: true },
+    orderBy: { createdAt: "desc" },
+    include: { items: { orderBy: { deliveryDate: "asc" } } },
   });
 
   return (
@@ -50,7 +54,7 @@ export default async function AdminOrdersPage({
           </select>
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          Delivery date
+          Has a meal on
           <input
             type="date"
             name="deliveryDate"
@@ -74,34 +78,41 @@ export default async function AdminOrdersPage({
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-neutral-200 text-left text-neutral-500">
-            <th className="py-2 pr-4">Delivery date</th>
+            <th className="py-2 pr-4">Placed</th>
+            <th className="py-2 pr-4">Delivery dates</th>
             <th className="py-2 pr-4">Plan</th>
-            <th className="py-2 pr-4">Items</th>
             <th className="py-2 pr-4">Contact</th>
             <th className="py-2 pr-4">Status</th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
-            <tr key={order.id} className="border-b border-neutral-100">
-              <td className="py-2 pr-4">
-                {order.deliveryDate.toISOString().slice(0, 10)}
-              </td>
-              <td className="py-2 pr-4">
-                {order.planLabelSnapshot} ({formatGbp(order.planPriceGbpSnapshot)})
-              </td>
-              <td className="py-2 pr-4">{order.items.length}</td>
-              <td className="py-2 pr-4">{order.contactName}</td>
-              <td className="py-2 pr-4">
-                <Link
-                  href={`/admin/orders/${order.id}`}
-                  className="underline hover:text-neutral-900"
-                >
-                  {order.status}
-                </Link>
-              </td>
-            </tr>
-          ))}
+          {orders.map((order) => {
+            const dates = Array.from(
+              new Set(
+                order.items.map((i) => i.deliveryDate.toISOString().slice(0, 10)),
+              ),
+            );
+            return (
+              <tr key={order.id} className="border-b border-neutral-100">
+                <td className="py-2 pr-4">
+                  {order.createdAt.toISOString().slice(0, 10)}
+                </td>
+                <td className="py-2 pr-4">{dates.join(", ")}</td>
+                <td className="py-2 pr-4">
+                  {order.planLabelSnapshot} ({formatGbp(order.planPriceGbpSnapshot)})
+                </td>
+                <td className="py-2 pr-4">{order.contactName}</td>
+                <td className="py-2 pr-4">
+                  <Link
+                    href={`/admin/orders/${order.id}`}
+                    className="underline hover:text-neutral-900"
+                  >
+                    {order.status}
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
           {orders.length === 0 && (
             <tr>
               <td colSpan={5} className="py-6 text-center text-neutral-500">

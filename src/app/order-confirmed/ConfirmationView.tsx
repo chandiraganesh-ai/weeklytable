@@ -3,16 +3,20 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+type MealSummary = {
+  dishName: string;
+  deliveryDate: string;
+};
+
 type OrderSummary = {
   orderId: string;
   status: string;
-  deliveryDate: string;
   planLabel: string;
   priceGbp: number;
   contactName: string;
   contactEmail: string;
   deliveryAddress: string;
-  dishNames: string[];
+  meals: MealSummary[];
 };
 
 const MAX_POLL_ATTEMPTS = 8;
@@ -89,13 +93,18 @@ export default function ConfirmationView() {
             {order.planLabel} (£{(order.priceGbp / 100).toFixed(2)})
           </dd>
         </div>
-        <div>
-          <dt className="text-neutral-500">Delivery date</dt>
-          <dd>{order.deliveryDate}</dd>
-        </div>
         <div className="sm:col-span-2">
-          <dt className="text-neutral-500">Dishes</dt>
-          <dd>{order.dishNames.join(", ")}</dd>
+          <dt className="text-neutral-500">Meals</dt>
+          <dd>
+            <ul className="mt-1 flex flex-col gap-1">
+              {order.meals.map((meal, i) => (
+                <li key={i}>
+                  <span className="font-medium">{meal.deliveryDate}</span> —{" "}
+                  {meal.dishName}
+                </li>
+              ))}
+            </ul>
+          </dd>
         </div>
         <div className="sm:col-span-2">
           <dt className="text-neutral-500">Delivering to</dt>

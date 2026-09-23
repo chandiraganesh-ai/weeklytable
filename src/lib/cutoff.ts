@@ -67,19 +67,40 @@ export function getNextEligibleDate(
   return formatDateISO(eligible.year, eligible.month, eligible.day);
 }
 
+// Orders cover one upcoming delivery week — customers pick a day per meal
+// within this rolling window, not an open-ended future date.
+export const ELIGIBLE_WINDOW_DAYS = 7;
+
+/** The rolling window of orderable "YYYY-MM-DD" dates, starting from the
+ * next eligible date. */
+export function getEligibleWindow(
+  config: CutoffConfigLike,
+  now: Date = new Date(),
+  windowDays: number = ELIGIBLE_WINDOW_DAYS,
+): string[] {
+  const start = getNextEligibleDate(config, now);
+  const [year, month, day] = start.split("-").map(Number);
+  const dates: string[] = [];
+  for (let i = 0; i < windowDays; i++) {
+    const d = addDays(year, month, day, i);
+    dates.push(formatDateISO(d.year, d.month, d.day));
+  }
+  return dates;
+}
+
 /**
- * Authoritative check: is `deliveryDate` ("YYYY-MM-DD") still orderable
- * right now, given the cutoff config? ISO date strings compare
- * lexicographically the same as chronologically, so a plain string
- * comparison against the earliest eligible date is sufficient.
+ * Authoritative check: is `deliveryDate` ("YYYY-MM-DD") within the current
+ * orderable window right now, given the cutoff config? Used both to gate
+ * the earliest date and to bound how far out an order can reach.
  */
 export function isDeliveryDateEligible(
   deliveryDate: string,
   config: CutoffConfigLike,
   now: Date = new Date(),
+  windowDays: number = ELIGIBLE_WINDOW_DAYS,
 ): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)) return false;
-  return deliveryDate >= getNextEligibleDate(config, now);
+  return getEligibleWindow(config, now, windowDays).includes(deliveryDate);
 }
 
 const WEEKDAYS = [

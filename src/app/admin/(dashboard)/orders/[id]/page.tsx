@@ -17,7 +17,10 @@ export default async function AdminOrderDetailPage({
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, plan: true },
+    include: {
+      items: { orderBy: { deliveryDate: "asc" } },
+      plan: true,
+    },
   });
 
   if (!order) notFound();
@@ -37,10 +40,6 @@ export default async function AdminOrderDetailPage({
         <div>
           <dt className="text-neutral-500">Status</dt>
           <dd className="font-medium">{order.status}</dd>
-        </div>
-        <div>
-          <dt className="text-neutral-500">Delivery date</dt>
-          <dd>{order.deliveryDate.toISOString().slice(0, 10)}</dd>
         </div>
         <div>
           <dt className="text-neutral-500">Plan</dt>
@@ -63,11 +62,16 @@ export default async function AdminOrderDetailPage({
           <dd>{order.deliveryAddress}</dd>
         </div>
         <div className="col-span-2">
-          <dt className="text-neutral-500">Dishes</dt>
+          <dt className="text-neutral-500">Meals</dt>
           <dd>
             <ul className="list-disc pl-5">
               {order.items.map((item) => (
-                <li key={item.id}>{item.dishNameSnapshot}</li>
+                <li key={item.id}>
+                  <span className="font-medium">
+                    {item.deliveryDate.toISOString().slice(0, 10)}
+                  </span>{" "}
+                  — {item.dishNameSnapshot}
+                </li>
               ))}
             </ul>
           </dd>

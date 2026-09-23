@@ -5,9 +5,32 @@ import { stripe } from "@/lib/stripe";
 import { isDeliveryDateEligible, getWeekday } from "@/lib/cutoff";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
+}
+
+type OrderItemInput = { dishId: string; deliveryDate: string };
+
+function parseItems(value: unknown): OrderItemInput[] | null {
+  if (!Array.isArray(value) || value.length === 0) return null;
+  const items: OrderItemInput[] = [];
+  for (const raw of value) {
+    if (
+      typeof raw !== "object" ||
+      raw === null ||
+      typeof (raw as Record<string, unknown>).dishId !== "string" ||
+      typeof (raw as Record<string, unknown>).deliveryDate !== "string"
+    ) {
+      return null;
+    }
+    items.push({
+      dishId: (raw as Record<string, unknown>).dishId as string,
+      deliveryDate: (raw as Record<string, unknown>).deliveryDate as string,
+    });
+  }
+  return items;
 }
 
 export async function POST(req: NextRequest) {
@@ -22,28 +45,20 @@ export async function POST(req: NextRequest) {
     return badRequest("Invalid request body.");
   }
 
-  const {
-    planId,
-    dishIds,
-    deliveryDate,
-    contactName,
-    contactPhone,
-    contactEmail,
-    deliveryAddress,
-  } = body as Record<string, unknown>;
+  const { planId, items: rawItems, contactName, contactPhone, contactEmail, deliveryAddress } =
+    body as Record<string, unknown>;
 
   if (typeof planId !== "string" || planId.trim() === "") {
     return badRequest("planId is required.");
   }
-  if (
-    !Array.isArray(dishIds) ||
-    dishIds.length === 0 ||
-    !dishIds.every((id) => typeof id === "string")
-  ) {
-    return badRequest("dishIds must be a non-empty array of strings.");
+  const items = parseItems(rawItems);
+  if (!items) {
+    return badRequest(
+      "items must be a non-empty array of { dishId, deliveryDate }.",
+    );
   }
-  if (typeof deliveryDate !== "string") {
-    return badRequest("deliveryDate is required.");
+  if (!items.every((item) => DATE_RE.test(item.deliveryDate))) {
+    return badRequest("Each item's deliveryDate must be in YYYY-MM-DD format.");
   }
   if (typeof contactName !== "string" || contactName.trim() === "") {
     return badRequest("contactName is required.");
@@ -63,9 +78,12 @@ export async function POST(req: NextRequest) {
   const cutoffConfig = await prisma.cutoffConfig.findUniqueOrThrow({
     where: { id: "default" },
   });
-  if (!isDeliveryDateEligible(deliveryDate, cutoffConfig)) {
+  const ineligibleDates = Array.from(
+    new Set(items.map((i) => i.deliveryDate)),
+  ).filter((date) => !isDeliveryDateEligible(date, cutoffConfig));
+  if (ineligibleDates.length > 0) {
     return badRequest(
-      "That delivery date is no longer available — please refresh and pick a new date.",
+      "One or more selected delivery dates are no longer available — please refresh and choose again.",
     );
   }
 
@@ -73,13 +91,13 @@ export async function POST(req: NextRequest) {
   if (!plan || !plan.isActive) {
     return badRequest("That plan is no longer available.");
   }
-  if (dishIds.length !== plan.mealCount) {
+  if (items.length !== plan.mealCount) {
     return badRequest(
-      `${plan.label} requires exactly ${plan.mealCount} dish${plan.mealCount === 1 ? "" : "es"}.`,
+      `${plan.label} requires exactly ${plan.mealCount} meal${plan.mealCount === 1 ? "" : "s"}.`,
     );
   }
 
-  const uniqueDishIds = Array.from(new Set(dishIds));
+  const uniqueDishIds = Array.from(new Set(items.map((i) => i.dishId)));
   const activeDishes = await prisma.dish.findMany({
     where: { id: { in: uniqueDishIds }, isActive: true },
     select: { id: true, name: true, availableDays: true },
@@ -89,15 +107,18 @@ export async function POST(req: NextRequest) {
     return badRequest("One or more selected dishes are no longer available.");
   }
 
-  // Not every dish is made every day — re-check independently of whatever
-  // the client filtered client-side.
-  const weekday = getWeekday(deliveryDate);
-  const unavailableToday = activeDishes.filter(
-    (d) => !d.availableDays.includes(weekday),
-  );
-  if (unavailableToday.length > 0) {
+  // Not every dish is made every day — re-check each item's own date
+  // independently of whatever the client filtered client-side.
+  const mismatched = items.filter((item) => {
+    const dish = dishById.get(item.dishId)!;
+    return !dish.availableDays.includes(getWeekday(item.deliveryDate));
+  });
+  if (mismatched.length > 0) {
+    const names = Array.from(
+      new Set(mismatched.map((i) => dishById.get(i.dishId)!.name)),
+    );
     return badRequest(
-      `${unavailableToday.map((d) => d.name).join(", ")} ${unavailableToday.length === 1 ? "is" : "are"} not available for delivery on that day — please refresh and choose again.`,
+      `${names.join(", ")} ${names.length === 1 ? "is" : "are"} not available for delivery on the selected day — please refresh and choose again.`,
     );
   }
 
@@ -123,8 +144,7 @@ export async function POST(req: NextRequest) {
       ],
       metadata: {
         orderId,
-        deliveryDate,
-        dishIds: dishIds.join(","),
+        mealCount: String(items.length),
       },
       customer_email: contactEmail,
       success_url: `${origin}/order-confirmed?session_id={CHECKOUT_SESSION_ID}`,
@@ -148,7 +168,6 @@ export async function POST(req: NextRequest) {
   await prisma.order.create({
     data: {
       id: orderId,
-      deliveryDate: new Date(`${deliveryDate}T00:00:00.000Z`),
       planId: plan.id,
       planLabelSnapshot: plan.label,
       planPriceGbpSnapshot: plan.priceGbp,
@@ -159,9 +178,10 @@ export async function POST(req: NextRequest) {
       status: "pending_payment",
       stripeCheckoutSessionId: session.id,
       items: {
-        create: dishIds.map((dishId) => ({
-          dishId,
-          dishNameSnapshot: dishById.get(dishId)!.name,
+        create: items.map((item) => ({
+          dishId: item.dishId,
+          dishNameSnapshot: dishById.get(item.dishId)!.name,
+          deliveryDate: new Date(`${item.deliveryDate}T00:00:00.000Z`),
         })),
       },
     },

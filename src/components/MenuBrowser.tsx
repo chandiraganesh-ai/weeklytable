@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import {
-  getNextEligibleDate,
+  getEligibleWindow,
   getWeekday,
   type CutoffConfigLike,
   type WeekdayName,
@@ -19,21 +19,23 @@ export type DishView = {
   availableDays: WeekdayName[];
 };
 
-const WEEKDAY_LABELS: Record<WeekdayName, string> = {
-  sunday: "Sunday",
-  monday: "Monday",
-  tuesday: "Tuesday",
-  wednesday: "Wednesday",
-  thursday: "Thursday",
-  friday: "Friday",
-  saturday: "Saturday",
-};
-
 export type PlanView = {
   id: string;
   label: string;
   mealCount: number;
   priceGbp: number;
+};
+
+type SelectedMeal = { dishId: string; date: string };
+
+const WEEKDAY_SHORT: Record<WeekdayName, string> = {
+  sunday: "Sun",
+  monday: "Mon",
+  tuesday: "Tue",
+  wednesday: "Wed",
+  thursday: "Thu",
+  friday: "Fri",
+  saturday: "Sat",
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -47,6 +49,12 @@ function formatGbp(pence: number) {
   return `£${(pence / 100).toFixed(2)}`;
 }
 
+function formatDayTab(date: string) {
+  const [, month, day] = date.split("-").map(Number);
+  const weekday = WEEKDAY_SHORT[getWeekday(date)];
+  return `${weekday} ${day}/${month}`;
+}
+
 export default function MenuBrowser({
   dishes,
   plans,
@@ -56,12 +64,18 @@ export default function MenuBrowser({
   plans: PlanView[];
   cutoffConfig: CutoffConfigLike;
 }) {
+  const eligibleDates = useMemo(
+    () => getEligibleWindow(cutoffConfig),
+    [cutoffConfig],
+  );
+
+  const [activeDate, setActiveDate] = useState(eligibleDates[0]);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
     plans[0]?.id ?? null,
   );
-  const [selectedDishIds, setSelectedDishIds] = useState<string[]>([]);
+  const [selectedMeals, setSelectedMeals] = useState<SelectedMeal[]>([]);
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -72,31 +86,23 @@ export default function MenuBrowser({
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) ?? null;
   const mealCount = selectedPlan?.mealCount ?? 0;
 
-  const nextEligibleDate = useMemo(
-    () => getNextEligibleDate(cutoffConfig),
-    [cutoffConfig],
-  );
-
-  const deliveryWeekday = useMemo(
-    () => getWeekday(nextEligibleDate),
-    [nextEligibleDate],
-  );
+  const activeWeekday = getWeekday(activeDate);
 
   // Not every dish is cooked every day — hard-filter to what's actually
-  // available for the delivery date before anything else (category/search
-  // filters operate on top of this, they never bring back an unavailable
-  // dish). The server re-enforces this independently at order time.
-  const dishesAvailableToday = useMemo(
-    () => dishes.filter((d) => d.availableDays.includes(deliveryWeekday)),
-    [dishes, deliveryWeekday],
+  // available on the active day before anything else (category/search
+  // filters operate on top of this). The server re-enforces this
+  // independently, per meal, at order time.
+  const dishesForActiveDay = useMemo(
+    () => dishes.filter((d) => d.availableDays.includes(activeWeekday)),
+    [dishes, activeWeekday],
   );
 
   const categories = useMemo(() => {
-    const seen = new Set(dishesAvailableToday.map((d) => d.category));
+    const seen = new Set(dishesForActiveDay.map((d) => d.category));
     return Array.from(seen);
-  }, [dishesAvailableToday]);
+  }, [dishesForActiveDay]);
 
-  const filteredDishes = dishesAvailableToday.filter((dish) => {
+  const filteredDishes = dishesForActiveDay.filter((dish) => {
     const matchesCategory =
       categoryFilter === "all" || dish.category === categoryFilter;
     const matchesSearch =
@@ -107,22 +113,28 @@ export default function MenuBrowser({
     return matchesCategory && matchesSearch;
   });
 
-  const notEnoughDishesToday =
-    selectedPlan !== null && dishesAvailableToday.length < mealCount;
-
   function selectPlan(planId: string) {
     setSelectedPlanId(planId);
-    setSelectedDishIds([]); // changing tier resets the (now differently-sized) selection
+    setSelectedMeals([]); // changing tier resets the (now differently-sized) selection
   }
 
-  function toggleDish(dishId: string) {
-    setSelectedDishIds((current) => {
-      if (current.includes(dishId)) {
-        return current.filter((id) => id !== dishId);
+  function toggleMeal(dishId: string, date: string) {
+    setSelectedMeals((current) => {
+      const exists = current.some((m) => m.dishId === dishId && m.date === date);
+      if (exists) {
+        return current.filter((m) => !(m.dishId === dishId && m.date === date));
       }
       if (current.length >= mealCount) return current; // bounded by the chosen tier
-      return [...current, dishId];
+      return [...current, { dishId, date }];
     });
+  }
+
+  function removeMeal(index: number) {
+    setSelectedMeals((current) => current.filter((_, i) => i !== index));
+  }
+
+  function dishName(dishId: string) {
+    return dishes.find((d) => d.id === dishId)?.name ?? dishId;
   }
 
   const hasContactDetails =
@@ -133,7 +145,7 @@ export default function MenuBrowser({
 
   const canCheckout =
     selectedPlan !== null &&
-    selectedDishIds.length === mealCount &&
+    selectedMeals.length === mealCount &&
     hasContactDetails;
 
   async function handleCheckout() {
@@ -146,8 +158,10 @@ export default function MenuBrowser({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           planId: selectedPlan.id,
-          dishIds: selectedDishIds,
-          deliveryDate: nextEligibleDate,
+          items: selectedMeals.map((m) => ({
+            dishId: m.dishId,
+            deliveryDate: m.date,
+          })),
           contactName,
           contactPhone,
           contactEmail,
@@ -195,25 +209,61 @@ export default function MenuBrowser({
 
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">2. Pick your dishes</h2>
+          <h2 className="text-xl font-semibold">2. Pick a meal for each day</h2>
           <span className="text-sm text-neutral-600">
-            {selectedDishIds.length} of {mealCount} selected
+            {selectedMeals.length} of {mealCount} selected
           </span>
         </div>
         <p className="text-sm text-neutral-600">
-          Showing what&apos;s available for {WEEKDAY_LABELS[deliveryWeekday]}{" "}
-          delivery ({nextEligibleDate}) — not every dish is made every day.
+          Choose which day each meal is delivered — not every dish is made
+          every day, so the menu below changes as you switch days.
         </p>
 
-        {notEnoughDishesToday && (
-          <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800" role="alert">
-            Only {dishesAvailableToday.length} dish
-            {dishesAvailableToday.length === 1 ? "" : "es"} available for{" "}
-            {WEEKDAY_LABELS[deliveryWeekday]} delivery — not enough to fill{" "}
-            {selectedPlan?.label}. Try a smaller plan, or check back for a
-            different delivery day.
-          </p>
+        {selectedMeals.length > 0 && (
+          <ul className="flex flex-col gap-1 rounded-md bg-neutral-50 p-3 text-sm">
+            {selectedMeals.map((meal, i) => (
+              <li key={i} className="flex items-center justify-between gap-2">
+                <span>
+                  <span className="font-medium">{meal.date}</span> —{" "}
+                  {dishName(meal.dishId)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeMeal(i)}
+                  className="text-neutral-500 hover:text-neutral-900"
+                  aria-label={`Remove ${dishName(meal.dishId)} on ${meal.date}`}
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
+
+        <div className="flex flex-wrap gap-2 border-b border-neutral-200 pb-3">
+          {eligibleDates.map((date) => {
+            const count = selectedMeals.filter((m) => m.date === date).length;
+            return (
+              <button
+                key={date}
+                type="button"
+                onClick={() => setActiveDate(date)}
+                className={`relative rounded-full border px-3 py-1.5 text-sm ${
+                  date === activeDate
+                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    : "border-neutral-300"
+                }`}
+              >
+                {formatDayTab(date)}
+                {count > 0 && (
+                  <span className="ml-1.5 rounded-full bg-white/20 px-1.5 text-xs">
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap gap-2">
@@ -254,21 +304,24 @@ export default function MenuBrowser({
 
         {filteredDishes.length === 0 && (
           <p className="text-sm text-neutral-500">
-            No dishes match — try a different category or search term.
+            Nothing matches for this day — try a different category, search
+            term, or day tab above.
           </p>
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {filteredDishes.map((dish) => {
-            const isSelected = selectedDishIds.includes(dish.id);
+            const isSelected = selectedMeals.some(
+              (m) => m.dishId === dish.id && m.date === activeDate,
+            );
             const isDisabled =
-              !isSelected && selectedDishIds.length >= mealCount;
+              !isSelected && selectedMeals.length >= mealCount;
             return (
               <button
                 key={dish.id}
                 type="button"
                 disabled={isDisabled}
-                onClick={() => toggleDish(dish.id)}
+                onClick={() => toggleMeal(dish.id, activeDate)}
                 className={`flex flex-col overflow-hidden rounded-lg border text-left transition ${
                   isSelected
                     ? "border-neutral-900 ring-2 ring-neutral-900"
@@ -301,14 +354,11 @@ export default function MenuBrowser({
       <section className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4">
         <h2 className="text-xl font-semibold">3. Delivery &amp; payment</h2>
         <p className="text-sm text-neutral-600">
-          Next available delivery date:{" "}
-          <span className="font-medium text-neutral-900">
-            {nextEligibleDate}
-          </span>{" "}
-          (orders must be placed at least {cutoffConfig.leadDays} day
+          Orders must be placed at least {cutoffConfig.leadDays} day
           {cutoffConfig.leadDays === 1 ? "" : "s"} ahead, by{" "}
-          {cutoffConfig.cutoffTime} the day before). This date is re-checked
-          when you pay — it can move on if you take a while to check out.
+          {cutoffConfig.cutoffTime} the day before each delivery date. Dates
+          are re-checked when you pay — they can become unavailable if you
+          take a while to check out.
         </p>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

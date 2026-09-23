@@ -76,7 +76,9 @@ model CutoffConfig {
 model Order {
   id String @id @default(uuid())
 
-  deliveryDate DateTime @db.Date
+  // No single deliveryDate here — each meal in the order can be delivered
+  // on a different day (see OrderItem.deliveryDate). One order = one
+  // payment/contact/address, potentially spanning several delivery days.
 
   planId               String
   plan                 Plan   @relation(fields: [planId], references: [id])
@@ -98,7 +100,6 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([deliveryDate])
   @@index([status])
 }
 
@@ -112,7 +113,11 @@ model OrderItem {
   dish            Dish   @relation(fields: [dishId], references: [id])
   dishNameSnapshot String
 
+  // Which day this specific meal is delivered/picked up on.
+  deliveryDate DateTime @db.Date
+
   @@index([orderId])
+  @@index([deliveryDate])
 }
 
 model AdminUser {

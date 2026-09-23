@@ -14,13 +14,15 @@ export async function GET(
     select: {
       id: true,
       status: true,
-      deliveryDate: true,
       planLabelSnapshot: true,
       planPriceGbpSnapshot: true,
       contactName: true,
       contactEmail: true,
       deliveryAddress: true,
-      items: { select: { dishNameSnapshot: true } },
+      items: {
+        select: { dishNameSnapshot: true, deliveryDate: true },
+        orderBy: { deliveryDate: "asc" },
+      },
     },
   });
 
@@ -31,12 +33,14 @@ export async function GET(
   return NextResponse.json({
     orderId: order.id,
     status: order.status,
-    deliveryDate: order.deliveryDate.toISOString().slice(0, 10),
     planLabel: order.planLabelSnapshot,
     priceGbp: order.planPriceGbpSnapshot,
     contactName: order.contactName,
     contactEmail: order.contactEmail,
     deliveryAddress: order.deliveryAddress,
-    dishNames: order.items.map((i) => i.dishNameSnapshot),
+    meals: order.items.map((i) => ({
+      dishName: i.dishNameSnapshot,
+      deliveryDate: i.deliveryDate.toISOString().slice(0, 10),
+    })),
   });
 }

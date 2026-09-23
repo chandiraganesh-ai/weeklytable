@@ -1,0 +1,223 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Image from "next/image";
+import { getNextEligibleDate, type CutoffConfigLike } from "@/lib/cutoff";
+
+export type DishView = {
+  id: string;
+  name: string;
+  category: string;
+  dietaryTag: string | null;
+  description: string;
+  imageUrl: string;
+};
+
+export type PlanView = {
+  id: string;
+  label: string;
+  mealCount: number;
+  priceGbp: number;
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  classics: "Classics",
+  italian: "Italian & Mediterranean",
+  bowls: "Bowls",
+  mexican: "Mexican",
+};
+
+function formatGbp(pence: number) {
+  return `£${(pence / 100).toFixed(2)}`;
+}
+
+export default function MenuBrowser({
+  dishes,
+  plans,
+  cutoffConfig,
+}: {
+  dishes: DishView[];
+  plans: PlanView[];
+  cutoffConfig: CutoffConfigLike;
+}) {
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
+    plans[0]?.id ?? null,
+  );
+  const [selectedDishIds, setSelectedDishIds] = useState<string[]>([]);
+
+  const selectedPlan = plans.find((p) => p.id === selectedPlanId) ?? null;
+  const mealCount = selectedPlan?.mealCount ?? 0;
+
+  const nextEligibleDate = useMemo(
+    () => getNextEligibleDate(cutoffConfig),
+    [cutoffConfig],
+  );
+
+  const categories = useMemo(() => {
+    const seen = new Set(dishes.map((d) => d.category));
+    return Array.from(seen);
+  }, [dishes]);
+
+  const filteredDishes = dishes.filter((dish) => {
+    const matchesCategory =
+      categoryFilter === "all" || dish.category === categoryFilter;
+    const matchesSearch =
+      search.trim() === "" ||
+      `${dish.name} ${dish.description}`
+        .toLowerCase()
+        .includes(search.trim().toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  function selectPlan(planId: string) {
+    setSelectedPlanId(planId);
+    setSelectedDishIds([]); // changing tier resets the (now differently-sized) selection
+  }
+
+  function toggleDish(dishId: string) {
+    setSelectedDishIds((current) => {
+      if (current.includes(dishId)) {
+        return current.filter((id) => id !== dishId);
+      }
+      if (current.length >= mealCount) return current; // bounded by the chosen tier
+      return [...current, dishId];
+    });
+  }
+
+  const canCheckout =
+    selectedPlan !== null && selectedDishIds.length === mealCount;
+
+  return (
+    <div className="mx-auto flex max-w-5xl flex-col gap-8 p-6">
+      <section className="flex flex-col gap-3">
+        <h2 className="text-xl font-semibold">1. Choose a plan</h2>
+        <div className="flex flex-wrap gap-3">
+          {plans.map((plan) => (
+            <button
+              key={plan.id}
+              type="button"
+              onClick={() => selectPlan(plan.id)}
+              className={`rounded-lg border px-4 py-3 text-left transition ${
+                plan.id === selectedPlanId
+                  ? "border-neutral-900 bg-neutral-900 text-white"
+                  : "border-neutral-300 hover:border-neutral-500"
+              }`}
+            >
+              <div className="font-medium">{plan.label}</div>
+              <div className="text-sm opacity-80">{formatGbp(plan.priceGbp)}</div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">2. Pick your dishes</h2>
+          <span className="text-sm text-neutral-600">
+            {selectedDishIds.length} of {mealCount} selected
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setCategoryFilter("all")}
+              className={`rounded-full border px-3 py-1 text-sm ${
+                categoryFilter === "all"
+                  ? "border-neutral-900 bg-neutral-900 text-white"
+                  : "border-neutral-300"
+              }`}
+            >
+              All
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategoryFilter(cat)}
+                className={`rounded-full border px-3 py-1 text-sm ${
+                  categoryFilter === cat
+                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    : "border-neutral-300"
+                }`}
+              >
+                {CATEGORY_LABELS[cat] ?? cat}
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            placeholder="Search dishes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="ml-auto rounded-md border border-neutral-300 px-3 py-1 text-sm"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {filteredDishes.map((dish) => {
+            const isSelected = selectedDishIds.includes(dish.id);
+            const isDisabled =
+              !isSelected && selectedDishIds.length >= mealCount;
+            return (
+              <button
+                key={dish.id}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => toggleDish(dish.id)}
+                className={`flex flex-col overflow-hidden rounded-lg border text-left transition ${
+                  isSelected
+                    ? "border-neutral-900 ring-2 ring-neutral-900"
+                    : "border-neutral-200"
+                } ${isDisabled ? "opacity-40" : "hover:border-neutral-400"}`}
+              >
+                <div className="relative h-36 w-full bg-neutral-100">
+                  <Image
+                    src={dish.imageUrl}
+                    alt={dish.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 p-3">
+                  <span className="font-medium">{dish.name}</span>
+                  {dish.dietaryTag && (
+                    <span className="text-xs text-neutral-500">
+                      {dish.dietaryTag}
+                    </span>
+                  )}
+                  <p className="text-sm text-neutral-600">{dish.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4">
+        <h2 className="text-xl font-semibold">3. Delivery &amp; payment</h2>
+        <p className="text-sm text-neutral-600">
+          Next available delivery date:{" "}
+          <span className="font-medium text-neutral-900">
+            {nextEligibleDate}
+          </span>{" "}
+          (orders must be placed at least {cutoffConfig.leadDays} day
+          {cutoffConfig.leadDays === 1 ? "" : "s"} ahead, by{" "}
+          {cutoffConfig.cutoffTime} the day before).
+        </p>
+        <button
+          type="button"
+          disabled={!canCheckout}
+          title="Payments are coming in a later phase"
+          className="cursor-not-allowed rounded-md bg-neutral-300 px-4 py-2 font-medium text-neutral-600"
+        >
+          Pay {selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""} — Coming
+          soon
+        </button>
+      </section>
+    </div>
+  );
+}

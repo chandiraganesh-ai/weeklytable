@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import ConfirmationView from "./ConfirmationView";
 
 export default function OrderConfirmedPage() {
@@ -8,6 +9,12 @@ export default function OrderConfirmedPage() {
       <Suspense fallback={<p className="text-neutral-600">Loading…</p>}>
         <ConfirmationView />
       </Suspense>
+      <Link
+        href="/"
+        className="mt-2 self-start rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium hover:border-neutral-500"
+      >
+        ← Back to home
+      </Link>
     </main>
   );
 }

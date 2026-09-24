@@ -197,52 +197,68 @@ export default function MenuBrowser({
   }
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-8 p-6">
-      <section className="flex flex-col gap-3">
-        <h2 className="text-xl font-semibold">1. Choose a plan</h2>
+    <div className="mx-auto flex max-w-6xl flex-col gap-10 bg-cream p-6 font-sans text-espresso antialiased sm:p-8">
+      <section className="flex flex-col gap-4">
+        <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold text-espresso">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta font-sans text-sm font-semibold text-white">
+            1
+          </span>
+          Choose a plan
+        </h2>
         <div className="flex flex-wrap gap-3">
           {plans.map((plan) => (
             <button
               key={plan.id}
               type="button"
               onClick={() => selectPlan(plan.id)}
-              className={`rounded-lg border px-4 py-3 text-left transition ${
+              className={`rounded-xl border px-5 py-4 text-left shadow-sm transition ${
                 plan.id === selectedPlanId
-                  ? "border-neutral-900 bg-neutral-900 text-white"
-                  : "border-neutral-300 hover:border-neutral-500"
+                  ? "border-terracotta bg-terracotta text-white shadow-md"
+                  : "border-card-border bg-white hover:border-terracotta/50 hover:shadow-md"
               }`}
             >
-              <div className="font-medium">{plan.label}</div>
-              <div className="text-sm opacity-80">{formatGbp(plan.priceGbp)}</div>
+              <div className="font-serif text-lg font-medium">{plan.label}</div>
+              <div
+                className={`text-sm ${
+                  plan.id === selectedPlanId ? "text-white/90" : "text-espresso/70"
+                }`}
+              >
+                {formatGbp(plan.priceGbp)}
+              </div>
             </button>
           ))}
         </div>
       </section>
 
-      <section className="flex flex-col gap-3">
+      <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">2. Pick a meal for each day</h2>
-          <span className="text-sm text-neutral-600">
+          <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold text-espresso">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta font-sans text-sm font-semibold text-white">
+              2
+            </span>
+            Pick a meal for each day
+          </h2>
+          <span className="text-sm text-espresso/60">
             {selectedMeals.length} of {mealCount} selected
           </span>
         </div>
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-espresso/70">
           Choose which day each meal is delivered — not every dish is made
           every day, so the menu below changes as you switch days.
         </p>
 
         {selectedMeals.length > 0 && (
-          <ul className="flex flex-col gap-1 rounded-md bg-neutral-50 p-3 text-sm">
+          <ul className="flex flex-col gap-1 rounded-xl border border-card-border bg-cream-dim/60 p-4 text-sm">
             {selectedMeals.map((meal, i) => (
               <li key={i} className="flex items-center justify-between gap-2">
                 <span>
-                  <span className="font-medium">{meal.date}</span> —{" "}
-                  {dishName(meal.dishId)}
+                  <span className="font-medium text-terracotta">{meal.date}</span>{" "}
+                  — {dishName(meal.dishId)}
                 </span>
                 <button
                   type="button"
                   onClick={() => removeMeal(i)}
-                  className="text-neutral-500 hover:text-neutral-900"
+                  className="text-espresso/50 hover:text-terracotta"
                   aria-label={`Remove ${dishName(meal.dishId)} on ${meal.date}`}
                 >
                   ✕
@@ -252,7 +268,7 @@ export default function MenuBrowser({
           </ul>
         )}
 
-        <div className="flex flex-wrap gap-2 border-b border-neutral-200 pb-3">
+        <div className="flex flex-wrap gap-2 border-b border-card-border pb-4">
           {eligibleDates.map((date) => {
             const count = selectedMeals.filter((m) => m.date === date).length;
             return (
@@ -260,15 +276,19 @@ export default function MenuBrowser({
                 key={date}
                 type="button"
                 onClick={() => setActiveDate(date)}
-                className={`relative rounded-full border px-3 py-1.5 text-sm ${
+                className={`relative rounded-full border px-3 py-1.5 text-sm transition ${
                   date === activeDate
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-300"
+                    ? "border-terracotta bg-terracotta text-white shadow-sm"
+                    : "border-card-border bg-white text-espresso hover:border-terracotta/50"
                 }`}
               >
                 {formatDayTab(date)}
                 {count > 0 && (
-                  <span className="ml-1.5 rounded-full bg-white/20 px-1.5 text-xs">
+                  <span
+                    className={`ml-1.5 rounded-full px-1.5 text-xs ${
+                      date === activeDate ? "bg-white/25" : "bg-terracotta/10 text-terracotta"
+                    }`}
+                  >
                     {count}
                   </span>
                 )}
@@ -282,10 +302,10 @@ export default function MenuBrowser({
             <button
               type="button"
               onClick={() => setCategoryFilter("all")}
-              className={`rounded-full border px-3 py-1 text-sm ${
+              className={`rounded-full border px-3 py-1 text-sm transition ${
                 categoryFilter === "all"
-                  ? "border-neutral-900 bg-neutral-900 text-white"
-                  : "border-neutral-300"
+                  ? "border-sage bg-sage text-white"
+                  : "border-card-border bg-white text-espresso hover:border-sage/50"
               }`}
             >
               All
@@ -295,10 +315,10 @@ export default function MenuBrowser({
                 key={cat}
                 type="button"
                 onClick={() => setCategoryFilter(cat)}
-                className={`rounded-full border px-3 py-1 text-sm ${
+                className={`rounded-full border px-3 py-1 text-sm transition ${
                   categoryFilter === cat
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-300"
+                    ? "border-sage bg-sage text-white"
+                    : "border-card-border bg-white text-espresso hover:border-sage/50"
                 }`}
               >
                 {CATEGORY_LABELS[cat] ?? cat}
@@ -310,12 +330,12 @@ export default function MenuBrowser({
             placeholder="Search dishes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="ml-auto rounded-md border border-neutral-300 px-3 py-1 text-sm"
+            className="ml-auto rounded-full border border-card-border bg-white px-4 py-1.5 text-sm text-espresso placeholder:text-espresso/40 focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
           />
         </div>
 
         {filteredDishes.length === 0 && (
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-espresso/60">
             Nothing matches for this day — try a different category, search
             term, or day tab above.
           </p>
@@ -334,13 +354,13 @@ export default function MenuBrowser({
                 type="button"
                 disabled={isDisabled}
                 onClick={() => toggleMeal(dish.id, activeDate)}
-                className={`flex flex-col overflow-hidden rounded-lg border text-left transition ${
+                className={`flex flex-col overflow-hidden rounded-xl border bg-white text-left shadow-sm transition ${
                   isSelected
-                    ? "border-neutral-900 ring-2 ring-neutral-900"
-                    : "border-neutral-200"
-                } ${isDisabled ? "opacity-40" : "hover:border-neutral-400"}`}
+                    ? "border-terracotta shadow-md ring-2 ring-terracotta"
+                    : "border-card-border"
+                } ${isDisabled ? "opacity-40" : "hover:border-terracotta/40 hover:shadow-md"}`}
               >
-                <div className="relative h-36 w-full bg-neutral-100">
+                <div className="relative h-40 w-full bg-cream-dim">
                   <Image
                     src={dish.imageUrl}
                     alt={dish.name}
@@ -348,14 +368,16 @@ export default function MenuBrowser({
                     className="object-cover"
                   />
                 </div>
-                <div className="flex flex-col gap-1 p-3">
-                  <span className="font-medium">{dish.name}</span>
+                <div className="flex flex-col gap-1 p-4">
+                  <span className="font-serif text-lg font-medium text-espresso">
+                    {dish.name}
+                  </span>
                   {dish.dietaryTag && (
-                    <span className="text-xs text-neutral-500">
+                    <span className="inline-block w-fit rounded-full bg-sage/10 px-2 py-0.5 text-xs font-medium text-sage">
                       {dish.dietaryTag}
                     </span>
                   )}
-                  <p className="text-sm text-neutral-600">{dish.description}</p>
+                  <p className="text-sm text-espresso/70">{dish.description}</p>
                 </div>
               </button>
             );
@@ -363,9 +385,14 @@ export default function MenuBrowser({
         </div>
       </section>
 
-      <section className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4">
-        <h2 className="text-xl font-semibold">3. Delivery &amp; payment</h2>
-        <p className="text-sm text-neutral-600">
+      <section className="flex flex-col gap-4 rounded-xl border border-card-border bg-white p-6 shadow-sm">
+        <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold text-espresso">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta font-sans text-sm font-semibold text-white">
+            3
+          </span>
+          Delivery &amp; payment
+        </h2>
+        <p className="text-sm text-espresso/70">
           Orders must be placed at least {cutoffConfig.leadDays} day
           {cutoffConfig.leadDays === 1 ? "" : "s"} ahead, by{" "}
           {cutoffConfig.cutoffTime} the day before each delivery date. Dates
@@ -374,75 +401,89 @@ export default function MenuBrowser({
         </p>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-espresso">
             Name
             <input
               type="text"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
-              className="rounded-md border border-neutral-300 px-3 py-2"
+              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               required
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-espresso">
             Phone
             <input
               type="tel"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
-              className="rounded-md border border-neutral-300 px-3 py-2"
+              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               required
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-espresso">
             Email
             <input
               type="email"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
-              className="rounded-md border border-neutral-300 px-3 py-2"
+              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               required
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+          <label className="flex flex-col gap-1 text-sm text-espresso sm:col-span-2">
             Delivery address
             <textarea
               value={deliveryAddress}
               onChange={(e) => setDeliveryAddress(e.target.value)}
-              className="rounded-md border border-neutral-300 px-3 py-2"
+              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               rows={2}
               required
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+          <label className="flex flex-col gap-1 text-sm text-espresso sm:col-span-2">
             Notes / dietary restrictions (optional)
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="rounded-md border border-neutral-300 px-3 py-2"
+              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
               rows={2}
               maxLength={1000}
               placeholder="e.g. nut allergy, no dairy, leave at the door…"
             />
           </label>
           <div className="flex flex-col gap-2 text-sm sm:col-span-2">
-            <span className="font-medium">Payment method</span>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2">
+            <span className="font-medium text-espresso">Payment method</span>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <label
+                className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 transition ${
+                  paymentMethod === "stripe"
+                    ? "border-terracotta bg-terracotta/5"
+                    : "border-card-border bg-white hover:border-terracotta/40"
+                }`}
+              >
                 <input
                   type="radio"
                   name="paymentMethod"
                   checked={paymentMethod === "stripe"}
                   onChange={() => setPaymentMethod("stripe")}
+                  className="accent-terracotta"
                 />
                 Pay by card now
               </label>
-              <label className="flex items-center gap-2">
+              <label
+                className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 transition ${
+                  paymentMethod === "cash"
+                    ? "border-terracotta bg-terracotta/5"
+                    : "border-card-border bg-white hover:border-terracotta/40"
+                }`}
+              >
                 <input
                   type="radio"
                   name="paymentMethod"
                   checked={paymentMethod === "cash"}
                   onChange={() => setPaymentMethod("cash")}
+                  className="accent-terracotta"
                 />
                 Cash on delivery
               </label>
@@ -460,10 +501,10 @@ export default function MenuBrowser({
           type="button"
           disabled={!canCheckout || isSubmitting}
           onClick={handleCheckout}
-          className={`rounded-md px-4 py-2 font-medium text-white transition ${
+          className={`rounded-full px-6 py-3 font-semibold text-white shadow-md transition ${
             canCheckout && !isSubmitting
-              ? "bg-neutral-900 hover:bg-neutral-700"
-              : "cursor-not-allowed bg-neutral-300 text-neutral-600"
+              ? "bg-terracotta hover:bg-terracotta-dark hover:shadow-lg"
+              : "cursor-not-allowed bg-card-border text-espresso/40 shadow-none"
           }`}
         >
           {isSubmitting

@@ -10,6 +10,7 @@ import {
 } from "@/lib/cutoff";
 import { CATEGORY_LABELS, DIETARY_TAG_LABELS } from "@/lib/dishOptions";
 import type { Category, DietaryTag } from "@/generated/prisma/enums";
+import { Icon } from "@/components/Icon";
 
 export type DishView = {
   id: string;
@@ -48,6 +49,21 @@ function formatDayTab(date: string) {
   const [, month, day] = date.split("-").map(Number);
   const weekday = WEEKDAY_SHORT[getWeekday(date)];
   return `${weekday} ${day}/${month}`;
+}
+
+// The "1 / 2 / 3" section markers double as progress feedback — once a
+// step is satisfied its badge fills sage with a checkmark instead of the
+// terracotta number, echoing the step-breadcrumb in the original design.
+function StepBadge({ number, done }: { number: number; done: boolean }) {
+  return (
+    <span
+      className={`flex h-7 w-7 items-center justify-center rounded-full font-sans text-sm font-semibold text-white transition-colors ${
+        done ? "bg-sage" : "bg-terracotta"
+      }`}
+    >
+      {done ? <Icon name="check" className="text-[16px] leading-none" /> : number}
+    </span>
+  );
 }
 
 export default function MenuBrowser({
@@ -195,9 +211,7 @@ export default function MenuBrowser({
     <div className="mx-auto flex max-w-6xl flex-col gap-10 bg-cream p-6 font-sans text-espresso antialiased sm:p-8">
       <section className="flex flex-col gap-4">
         <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold text-espresso">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta font-sans text-sm font-semibold text-white">
-            1
-          </span>
+          <StepBadge number={1} done={selectedPlan !== null} />
           Choose a plan
         </h2>
         <div className="flex flex-wrap gap-3">
@@ -206,10 +220,10 @@ export default function MenuBrowser({
               key={plan.id}
               type="button"
               onClick={() => selectPlan(plan.id)}
-              className={`rounded-xl border px-5 py-4 text-left shadow-sm transition ${
+              className={`rounded-xl border px-5 py-4 text-left shadow-sm transition active:scale-[0.98] ${
                 plan.id === selectedPlanId
                   ? "border-terracotta bg-terracotta text-white shadow-md"
-                  : "border-card-border bg-white hover:border-terracotta/50 hover:shadow-md"
+                  : "border-card-border bg-white hover:-translate-y-0.5 hover:border-terracotta/50 hover:shadow-md"
               }`}
             >
               <div className="font-serif text-lg font-medium">{plan.label}</div>
@@ -228,9 +242,7 @@ export default function MenuBrowser({
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold text-espresso">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta font-sans text-sm font-semibold text-white">
-              2
-            </span>
+            <StepBadge number={2} done={mealCount > 0 && selectedMeals.length === mealCount} />
             Pick a meal for each day
           </h2>
           <span className="text-sm text-espresso/60">
@@ -271,7 +283,7 @@ export default function MenuBrowser({
                 key={date}
                 type="button"
                 onClick={() => setActiveDate(date)}
-                className={`relative rounded-full border px-3 py-1.5 text-sm transition ${
+                className={`relative rounded-full border px-3 py-1.5 text-sm transition active:scale-95 ${
                   date === activeDate
                     ? "border-terracotta bg-terracotta text-white shadow-sm"
                     : "border-card-border bg-white text-espresso hover:border-terracotta/50"
@@ -297,7 +309,7 @@ export default function MenuBrowser({
             <button
               type="button"
               onClick={() => setCategoryFilter("all")}
-              className={`rounded-full border px-3 py-1 text-sm transition ${
+              className={`rounded-full border px-3 py-1 text-sm transition active:scale-95 ${
                 categoryFilter === "all"
                   ? "border-sage bg-sage text-white"
                   : "border-card-border bg-white text-espresso hover:border-sage/50"
@@ -310,7 +322,7 @@ export default function MenuBrowser({
                 key={cat}
                 type="button"
                 onClick={() => setCategoryFilter(cat)}
-                className={`rounded-full border px-3 py-1 text-sm transition ${
+                className={`rounded-full border px-3 py-1 text-sm transition active:scale-95 ${
                   categoryFilter === cat
                     ? "border-sage bg-sage text-white"
                     : "border-card-border bg-white text-espresso hover:border-sage/50"
@@ -330,7 +342,8 @@ export default function MenuBrowser({
         </div>
 
         {filteredDishes.length === 0 && (
-          <p className="text-sm text-espresso/60">
+          <p className="flex items-center gap-2 rounded-xl border border-card-border bg-cream-dim/60 px-4 py-3 text-sm text-espresso/60">
+            <Icon name="search_off" className="shrink-0 text-[20px] text-espresso/40" />
             Nothing matches for this day — try a different category, search
             term, or day tab above.
           </p>
@@ -349,12 +362,17 @@ export default function MenuBrowser({
                 type="button"
                 disabled={isDisabled}
                 onClick={() => toggleMeal(dish.id, activeDate)}
-                className={`flex flex-col overflow-hidden rounded-xl border bg-white text-left shadow-sm transition ${
+                className={`relative flex flex-col overflow-hidden rounded-xl border bg-white text-left shadow-sm transition active:scale-[0.98] ${
                   isSelected
                     ? "border-terracotta shadow-md ring-2 ring-terracotta"
                     : "border-card-border"
-                } ${isDisabled ? "opacity-40" : "hover:border-terracotta/40 hover:shadow-md"}`}
+                } ${isDisabled ? "opacity-40" : "hover:-translate-y-0.5 hover:border-terracotta/40 hover:shadow-md"}`}
               >
+                {isSelected && (
+                  <span className="absolute right-2 top-2 z-10 flex h-6 w-6 scale-100 items-center justify-center rounded-full bg-terracotta text-white shadow-sm transition-transform">
+                    <Icon name="check" className="text-[16px] leading-none" />
+                  </span>
+                )}
                 <div className="relative h-40 w-full bg-cream-dim">
                   <Image
                     src={dish.imageUrl}
@@ -382,17 +400,18 @@ export default function MenuBrowser({
 
       <section className="flex flex-col gap-4 rounded-xl border border-card-border bg-white p-6 shadow-sm">
         <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold text-espresso">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta font-sans text-sm font-semibold text-white">
-            3
-          </span>
+          <StepBadge number={3} done={canCheckout} />
           Delivery &amp; payment
         </h2>
-        <p className="text-sm text-espresso/70">
-          Orders must be placed at least {cutoffConfig.leadDays} day
-          {cutoffConfig.leadDays === 1 ? "" : "s"} ahead, by{" "}
-          {cutoffConfig.cutoffTime} the day before each delivery date. Dates
-          are re-checked when you pay — they can become unavailable if you
-          take a while to check out.
+        <p className="flex items-start gap-1.5 text-sm text-espresso/70">
+          <Icon name="schedule" className="mt-0.5 shrink-0 text-[18px] text-terracotta" />
+          <span>
+            Orders must be placed at least {cutoffConfig.leadDays} day
+            {cutoffConfig.leadDays === 1 ? "" : "s"} ahead, by{" "}
+            {cutoffConfig.cutoffTime} the day before each delivery date. Dates
+            are re-checked when you pay — they can become unavailable if you
+            take a while to check out.
+          </span>
         </p>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -464,6 +483,7 @@ export default function MenuBrowser({
                   onChange={() => setPaymentMethod("stripe")}
                   className="accent-terracotta"
                 />
+                <Icon name="credit_card" className="text-[18px] text-terracotta" />
                 Pay by card now
               </label>
               <label
@@ -480,6 +500,7 @@ export default function MenuBrowser({
                   onChange={() => setPaymentMethod("cash")}
                   className="accent-terracotta"
                 />
+                <Icon name="payments" className="text-[18px] text-terracotta" />
                 Cash on delivery
               </label>
             </div>
@@ -487,7 +508,11 @@ export default function MenuBrowser({
         </div>
 
         {submitError && (
-          <p className="text-sm text-red-600" role="alert">
+          <p
+            className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+            role="alert"
+          >
+            <Icon name="error" className="shrink-0 text-[18px]" />
             {submitError}
           </p>
         )}
@@ -496,12 +521,13 @@ export default function MenuBrowser({
           type="button"
           disabled={!canCheckout || isSubmitting}
           onClick={handleCheckout}
-          className={`rounded-full px-6 py-3 font-semibold text-white shadow-md transition ${
+          className={`flex w-fit items-center gap-2 rounded-full px-6 py-3 font-semibold text-white shadow-md transition active:scale-[0.98] ${
             canCheckout && !isSubmitting
               ? "bg-terracotta hover:bg-terracotta-dark hover:shadow-lg"
               : "cursor-not-allowed bg-card-border text-espresso/40 shadow-none"
           }`}
         >
+          <Icon name="lock" className="text-[18px]" />
           {isSubmitting
             ? paymentMethod === "cash"
               ? "Placing order…"

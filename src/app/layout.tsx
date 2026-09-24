@@ -30,6 +30,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Decorative icons on the customer-facing pages only (see
+            src/components/Icon.tsx) — loaded globally like the fonts above,
+            inert unless a page actually references material-symbols-outlined. */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+        />
+      </head>
       <body className={`${newsreader.variable} ${jakarta.variable}`}>
         {children}
       </body>

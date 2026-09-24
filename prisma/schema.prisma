@@ -35,14 +35,27 @@ enum Weekday {
   sunday
 }
 
+enum Category {
+  classics
+  italian
+  bowls
+  mexican
+}
+
+enum DietaryTag {
+  vegetarian
+  gluten_free  @map("gluten-free")
+  high_protein @map("high-protein")
+}
+
 model Dish {
-  id          String  @id @default(uuid())
-  name        String  @unique
-  category    String
-  dietaryTag  String?
+  id          String      @id @default(uuid())
+  name        String      @unique
+  category    Category
+  dietaryTag  DietaryTag?
   description String
   imageUrl    String
-  isActive    Boolean @default(true)
+  isActive    Boolean     @default(true)
 
   // Which days of the week this dish can be delivered on — not every dish
   // is cooked every day. Defaults to every day so existing/new dishes stay
@@ -90,9 +103,9 @@ model Order {
   planLabelSnapshot    String
   planPriceGbpSnapshot Int
 
-  contactName    String
-  contactPhone   String
-  contactEmail   String
+  contactName     String
+  contactPhone    String
+  contactEmail    String
   deliveryAddress String
 
   // Free-text, whole-order notes (e.g. dietary restrictions) captured once
@@ -125,8 +138,8 @@ model OrderItem {
   orderId String
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  dishId          String
-  dish            Dish   @relation(fields: [dishId], references: [id])
+  dishId           String
+  dish             Dish   @relation(fields: [dishId], references: [id])
   dishNameSnapshot String
 
   // Which day this specific meal is delivered/picked up on.

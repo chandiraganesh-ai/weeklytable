@@ -8,12 +8,14 @@ import {
   type CutoffConfigLike,
   type WeekdayName,
 } from "@/lib/cutoff";
+import { CATEGORY_LABELS, DIETARY_TAG_LABELS } from "@/lib/dishOptions";
+import type { Category, DietaryTag } from "@/generated/prisma/enums";
 
 export type DishView = {
   id: string;
   name: string;
-  category: string;
-  dietaryTag: string | null;
+  category: Category;
+  dietaryTag: DietaryTag | null;
   description: string;
   imageUrl: string;
   availableDays: WeekdayName[];
@@ -36,13 +38,6 @@ const WEEKDAY_SHORT: Record<WeekdayName, string> = {
   thursday: "Thu",
   friday: "Fri",
   saturday: "Sat",
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  classics: "Classics",
-  italian: "Italian & Mediterranean",
-  bowls: "Bowls",
-  mexican: "Mexican",
 };
 
 function formatGbp(pence: number) {
@@ -70,7 +65,7 @@ export default function MenuBrowser({
   );
 
   const [activeDate, setActiveDate] = useState(eligibleDates[0]);
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [search, setSearch] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
     plans[0]?.id ?? null,
@@ -321,7 +316,7 @@ export default function MenuBrowser({
                     : "border-card-border bg-white text-espresso hover:border-sage/50"
                 }`}
               >
-                {CATEGORY_LABELS[cat] ?? cat}
+                {CATEGORY_LABELS[cat]}
               </button>
             ))}
           </div>
@@ -374,7 +369,7 @@ export default function MenuBrowser({
                   </span>
                   {dish.dietaryTag && (
                     <span className="inline-block w-fit rounded-full bg-sage/10 px-2 py-0.5 text-xs font-medium text-sage">
-                      {dish.dietaryTag}
+                      {DIETARY_TAG_LABELS[dish.dietaryTag]}
                     </span>
                   )}
                   <p className="text-sm text-espresso/70">{dish.description}</p>

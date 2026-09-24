@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { toggleDishActive } from "./actions";
+import { CATEGORY_LABELS, DIETARY_TAG_LABELS } from "@/lib/dishOptions";
 
 export const dynamic = "force-dynamic";
 
@@ -52,8 +53,10 @@ export default async function AdminDishesPage() {
           {dishes.map((dish) => (
             <tr key={dish.id} className="border-b border-neutral-100">
               <td className="py-2 pr-4">{dish.name}</td>
-              <td className="py-2 pr-4">{dish.category}</td>
-              <td className="py-2 pr-4">{dish.dietaryTag ?? "—"}</td>
+              <td className="py-2 pr-4">{CATEGORY_LABELS[dish.category]}</td>
+              <td className="py-2 pr-4">
+                {dish.dietaryTag ? DIETARY_TAG_LABELS[dish.dietaryTag] : "—"}
+              </td>
               <td className="py-2 pr-4">{formatDays(dish.availableDays)}</td>
               <td className="py-2 pr-4">{dish.isActive ? "Yes" : "No"}</td>
               <td className="flex gap-3 py-2 pr-4">

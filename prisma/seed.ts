@@ -6,7 +6,7 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Weekday } from "../src/generated/prisma/enums";
+import { Weekday, Category, DietaryTag } from "../src/generated/prisma/enums";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -14,37 +14,37 @@ const prisma = new PrismaClient({ adapter });
 const dishes = [
   {
     name: "Roast Chicken & Root Vegetables",
-    category: "classics",
-    dietaryTag: "high-protein",
+    category: Category.classics,
+    dietaryTag: DietaryTag.high_protein,
     description:
       "Slow-roasted chicken thigh with carrots, parsnips, and a herb gravy.",
     imageUrl: "/dishes/placeholder.svg",
   },
   {
     name: "Beef & Ale Stew",
-    category: "classics",
+    category: Category.classics,
     dietaryTag: null,
     description: "Braised beef, root vegetables, and a rich ale gravy.",
     imageUrl: "/dishes/placeholder.svg",
   },
   {
     name: "Mushroom & Spinach Risotto",
-    category: "classics",
-    dietaryTag: "vegetarian",
+    category: Category.italian,
+    dietaryTag: DietaryTag.vegetarian,
     description: "Creamy arborio rice with wild mushrooms and spinach.",
     imageUrl: "/dishes/placeholder.svg",
   },
   {
     name: "Chicken Tikka Masala",
-    category: "italian",
-    dietaryTag: "gluten-free",
+    category: Category.bowls,
+    dietaryTag: DietaryTag.gluten_free,
     description: "Marinated chicken in a spiced tomato and cream sauce, with rice.",
     imageUrl: "/dishes/placeholder.svg",
   },
   {
     name: "Katsu Curry Bowl",
-    category: "bowls",
-    dietaryTag: "high-protein",
+    category: Category.bowls,
+    dietaryTag: DietaryTag.high_protein,
     description: "Panko-crumbed chicken, katsu curry sauce, and steamed rice.",
     imageUrl: "/dishes/placeholder.svg",
     // Demonstrates day-restriction: a weekday-only kitchen special.
@@ -58,15 +58,15 @@ const dishes = [
   },
   {
     name: "Vegetable Stir-Fry Bowl",
-    category: "bowls",
-    dietaryTag: "vegetarian",
+    category: Category.bowls,
+    dietaryTag: DietaryTag.vegetarian,
     description: "Seasonal vegetables wok-tossed in a light soy-ginger sauce.",
     imageUrl: "/dishes/placeholder.svg",
   },
   {
     name: "Chilli Con Carne",
-    category: "mexican",
-    dietaryTag: "high-protein",
+    category: Category.mexican,
+    dietaryTag: DietaryTag.high_protein,
     description: "Slow-cooked beef and bean chilli with rice.",
     imageUrl: "/dishes/placeholder.svg",
     // Demonstrates day-restriction: a weekend-only special.

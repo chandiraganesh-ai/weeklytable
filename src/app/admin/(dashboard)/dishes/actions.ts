@@ -4,13 +4,15 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/dal";
-import { Weekday } from "@/generated/prisma/enums";
+import { Weekday, Category, DietaryTag } from "@/generated/prisma/enums";
 
 const VALID_WEEKDAYS = new Set(Object.values(Weekday));
+const VALID_CATEGORIES = new Set(Object.values(Category));
+const VALID_DIETARY_TAGS = new Set(Object.values(DietaryTag));
 
 function readDishFields(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim();
+  const categoryRaw = String(formData.get("category") ?? "").trim();
   const dietaryTagRaw = String(formData.get("dietaryTag") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
@@ -20,8 +22,14 @@ function readDishFields(formData: FormData) {
     .map(String)
     .filter((d): d is Weekday => VALID_WEEKDAYS.has(d as Weekday));
 
-  if (!name || !category || !description || !imageUrl) {
+  if (!name || !categoryRaw || !description || !imageUrl) {
     throw new Error("Name, category, description, and image URL are required.");
+  }
+  if (!VALID_CATEGORIES.has(categoryRaw as Category)) {
+    throw new Error(`"${categoryRaw}" is not a valid category.`);
+  }
+  if (dietaryTagRaw !== "" && !VALID_DIETARY_TAGS.has(dietaryTagRaw as DietaryTag)) {
+    throw new Error(`"${dietaryTagRaw}" is not a valid dietary tag.`);
   }
   if (availableDays.length === 0) {
     throw new Error("Select at least one available day.");
@@ -29,8 +37,8 @@ function readDishFields(formData: FormData) {
 
   return {
     name,
-    category,
-    dietaryTag: dietaryTagRaw === "" ? null : dietaryTagRaw,
+    category: categoryRaw as Category,
+    dietaryTag: dietaryTagRaw === "" ? null : (dietaryTagRaw as DietaryTag),
     description,
     imageUrl,
     isActive,

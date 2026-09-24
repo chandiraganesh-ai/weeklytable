@@ -1,3 +1,6 @@
+import { CATEGORY_LABELS, CATEGORY_VALUES, DIETARY_TAG_LABELS, DIETARY_TAG_VALUES } from "@/lib/dishOptions";
+import type { Category, DietaryTag } from "@/generated/prisma/enums";
+
 const WEEKDAYS = [
   { value: "monday", label: "Mon" },
   { value: "tuesday", label: "Tue" },
@@ -10,8 +13,8 @@ const WEEKDAYS = [
 
 type DishFormValues = {
   name: string;
-  category: string;
-  dietaryTag: string | null;
+  category: Category;
+  dietaryTag: DietaryTag | null;
   description: string;
   imageUrl: string;
   isActive: boolean;
@@ -41,24 +44,36 @@ export default function DishForm({
       </label>
       <label className="flex flex-col gap-1 text-sm">
         Category
-        <input
-          type="text"
+        <select
           name="category"
-          defaultValue={initial?.category}
-          placeholder="e.g. classics"
+          defaultValue={initial?.category ?? ""}
           className="rounded-md border border-neutral-300 px-3 py-2"
           required
-        />
+        >
+          <option value="" disabled>
+            Select a category…
+          </option>
+          {CATEGORY_VALUES.map((value) => (
+            <option key={value} value={value}>
+              {CATEGORY_LABELS[value]}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="flex flex-col gap-1 text-sm">
         Dietary tag (optional)
-        <input
-          type="text"
+        <select
           name="dietaryTag"
           defaultValue={initial?.dietaryTag ?? ""}
-          placeholder="e.g. vegetarian"
           className="rounded-md border border-neutral-300 px-3 py-2"
-        />
+        >
+          <option value="">None</option>
+          {DIETARY_TAG_VALUES.map((value) => (
+            <option key={value} value={value}>
+              {DIETARY_TAG_LABELS[value]}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="flex flex-col gap-1 text-sm">
         Description

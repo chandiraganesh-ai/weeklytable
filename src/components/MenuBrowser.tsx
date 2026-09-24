@@ -80,6 +80,8 @@ export default function MenuBrowser({
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "cash">("stripe");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -166,6 +168,8 @@ export default function MenuBrowser({
           contactPhone,
           contactEmail,
           deliveryAddress,
+          notes: notes.trim() === "" ? undefined : notes.trim(),
+          paymentMethod,
         }),
       });
 
@@ -177,7 +181,15 @@ export default function MenuBrowser({
         return;
       }
 
-      window.location.href = data.checkoutUrl;
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        // Cash order — no Stripe redirect. Reuse the same confirmation
+        // page by passing the order's own id in place of a Stripe
+        // session id (the by-session route accepts either for cash
+        // orders — see its comment for why that's safe).
+        window.location.href = `/order-confirmed?session_id=${encodeURIComponent(data.orderId)}`;
+      }
     } catch {
       setSubmitError("Could not reach the server. Please try again.");
       setIsSubmitting(false);
@@ -402,6 +414,40 @@ export default function MenuBrowser({
               required
             />
           </label>
+          <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            Notes / dietary restrictions (optional)
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2"
+              rows={2}
+              maxLength={1000}
+              placeholder="e.g. nut allergy, no dairy, leave at the door…"
+            />
+          </label>
+          <div className="flex flex-col gap-2 text-sm sm:col-span-2">
+            <span className="font-medium">Payment method</span>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "stripe"}
+                  onChange={() => setPaymentMethod("stripe")}
+                />
+                Pay by card now
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "cash"}
+                  onChange={() => setPaymentMethod("cash")}
+                />
+                Cash on delivery
+              </label>
+            </div>
+          </div>
         </div>
 
         {submitError && (
@@ -421,8 +467,12 @@ export default function MenuBrowser({
           }`}
         >
           {isSubmitting
-            ? "Redirecting to payment…"
-            : `Pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""}`}
+            ? paymentMethod === "cash"
+              ? "Placing order…"
+              : "Redirecting to payment…"
+            : paymentMethod === "cash"
+              ? `Place order — pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""} cash on delivery`
+              : `Pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""}`}
         </button>
       </section>
     </div>

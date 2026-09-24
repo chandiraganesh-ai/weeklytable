@@ -5,6 +5,7 @@ import type { Prisma } from "@/generated/prisma/client";
 export const dynamic = "force-dynamic";
 
 const STATUSES = ["pending_payment", "paid", "fulfilled", "cancelled"] as const;
+const PAYMENT_METHODS = ["stripe", "cash"] as const;
 
 function formatGbp(pence: number) {
   return `£${(pence / 100).toFixed(2)}`;
@@ -13,12 +14,19 @@ function formatGbp(pence: number) {
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; deliveryDate?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    deliveryDate?: string;
+    paymentMethod?: string;
+  }>;
 }) {
   const params = await searchParams;
 
   const where: Prisma.OrderWhereInput = {};
   if (params.status) where.status = params.status as Prisma.OrderWhereInput["status"];
+  if (params.paymentMethod) {
+    where.paymentMethod = params.paymentMethod as Prisma.OrderWhereInput["paymentMethod"];
+  }
   if (params.deliveryDate) {
     // An order can now span several delivery dates (one per meal) — "filter
     // by date" means "orders with at least one meal on this date".
@@ -54,6 +62,21 @@ export default async function AdminOrdersPage({
           </select>
         </label>
         <label className="flex flex-col gap-1 text-sm">
+          Payment
+          <select
+            name="paymentMethod"
+            defaultValue={params.paymentMethod ?? ""}
+            className="rounded-md border border-neutral-300 px-2 py-1"
+          >
+            <option value="">All</option>
+            {PAYMENT_METHODS.map((m) => (
+              <option key={m} value={m}>
+                {m === "cash" ? "Cash on delivery" : "Card (Stripe)"}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
           Has a meal on
           <input
             type="date"
@@ -68,7 +91,7 @@ export default async function AdminOrdersPage({
         >
           Filter
         </button>
-        {(params.status || params.deliveryDate) && (
+        {(params.status || params.deliveryDate || params.paymentMethod) && (
           <Link href="/admin/orders" className="text-sm text-neutral-600 underline">
             Clear
           </Link>
@@ -81,6 +104,8 @@ export default async function AdminOrdersPage({
             <th className="py-2 pr-4">Placed</th>
             <th className="py-2 pr-4">Delivery dates</th>
             <th className="py-2 pr-4">Plan</th>
+            <th className="py-2 pr-4">Payment</th>
+            <th className="py-2 pr-4">Meals fulfilled</th>
             <th className="py-2 pr-4">Contact</th>
             <th className="py-2 pr-4">Status</th>
           </tr>
@@ -92,6 +117,7 @@ export default async function AdminOrdersPage({
                 order.items.map((i) => i.deliveryDate.toISOString().slice(0, 10)),
               ),
             );
+            const fulfilledCount = order.items.filter((i) => i.fulfilled).length;
             return (
               <tr key={order.id} className="border-b border-neutral-100">
                 <td className="py-2 pr-4">
@@ -100,6 +126,12 @@ export default async function AdminOrdersPage({
                 <td className="py-2 pr-4">{dates.join(", ")}</td>
                 <td className="py-2 pr-4">
                   {order.planLabelSnapshot} ({formatGbp(order.planPriceGbpSnapshot)})
+                </td>
+                <td className="py-2 pr-4">
+                  {order.paymentMethod === "cash" ? "Cash" : "Card"}
+                </td>
+                <td className="py-2 pr-4">
+                  {fulfilledCount}/{order.items.length}
                 </td>
                 <td className="py-2 pr-4">{order.contactName}</td>
                 <td className="py-2 pr-4">
@@ -115,7 +147,7 @@ export default async function AdminOrdersPage({
           })}
           {orders.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-6 text-center text-neutral-500">
+              <td colSpan={7} className="py-6 text-center text-neutral-500">
                 No orders match these filters.
               </td>
             </tr>

@@ -11,11 +11,13 @@ type MealSummary = {
 type OrderSummary = {
   orderId: string;
   status: string;
+  paymentMethod: "stripe" | "cash";
   planLabel: string;
   priceGbp: number;
   contactName: string;
   contactEmail: string;
   deliveryAddress: string;
+  notes: string | null;
   meals: MealSummary[];
 };
 
@@ -33,6 +35,10 @@ export default function ConfirmationView() {
   useEffect(() => {
     if (!sessionId) return;
     if (order?.status === "paid") return;
+    // Cash orders never get a webhook — "pending_payment" is their normal
+    // resting state until an admin manually marks them paid, not a
+    // transient "still processing" state worth polling for.
+    if (order?.paymentMethod === "cash") return;
     if (attempts >= MAX_POLL_ATTEMPTS) return;
 
     const timer = setTimeout(
@@ -55,7 +61,7 @@ export default function ConfirmationView() {
     );
 
     return () => clearTimeout(timer);
-  }, [sessionId, attempts, order?.status]);
+  }, [sessionId, attempts, order?.status, order?.paymentMethod]);
 
   if (!sessionId) {
     return <p className="text-neutral-600">No order reference was given.</p>;
@@ -70,7 +76,7 @@ export default function ConfirmationView() {
     );
   }
 
-  if (!order || order.status === "pending_payment") {
+  if (!order || (order.paymentMethod !== "cash" && order.status === "pending_payment")) {
     const gaveUp = attempts >= MAX_POLL_ATTEMPTS;
     return (
       <p className="text-neutral-600">
@@ -84,7 +90,8 @@ export default function ConfirmationView() {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-lg font-medium text-green-700">
-        Thanks, {order.contactName.split(" ")[0]} — your order is confirmed.
+        Thanks, {order.contactName.split(" ")[0]} — your order is confirmed
+        {order.paymentMethod === "cash" ? " (cash on delivery)." : "."}
       </p>
       <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
         <div>
@@ -110,9 +117,17 @@ export default function ConfirmationView() {
           <dt className="text-neutral-500">Delivering to</dt>
           <dd>{order.deliveryAddress}</dd>
         </div>
+        {order.notes && (
+          <div className="sm:col-span-2">
+            <dt className="text-neutral-500">Notes</dt>
+            <dd>{order.notes}</dd>
+          </div>
+        )}
       </dl>
       <p className="text-sm text-neutral-500">
-        A confirmation has been sent to {order.contactEmail}.
+        {order.paymentMethod === "cash"
+          ? "Please have the exact amount ready — payment is collected on delivery."
+          : `A confirmation has been sent to ${order.contactEmail}.`}
       </p>
     </div>
   );

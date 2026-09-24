@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { setOrderStatus } from "../actions";
+import { setOrderStatus, markOrderPaidCash, toggleOrderItemFulfilled } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +27,8 @@ export default async function AdminOrderDetailPage({
 
   const canMarkFulfilled = order.status === "paid";
   const canCancel = order.status === "pending_payment" || order.status === "paid";
+  const canMarkPaidCash =
+    order.paymentMethod === "cash" && order.status === "pending_payment";
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
@@ -48,6 +50,12 @@ export default async function AdminOrderDetailPage({
           </dd>
         </div>
         <div>
+          <dt className="text-neutral-500">Payment method</dt>
+          <dd className="capitalize">
+            {order.paymentMethod === "cash" ? "Cash on delivery" : "Card (Stripe)"}
+          </dd>
+        </div>
+        <div>
           <dt className="text-neutral-500">Placed</dt>
           <dd>{order.createdAt.toISOString()}</dd>
         </div>
@@ -61,32 +69,74 @@ export default async function AdminOrderDetailPage({
           <dt className="text-neutral-500">Delivery address</dt>
           <dd>{order.deliveryAddress}</dd>
         </div>
+        {order.notes && (
+          <div className="col-span-2">
+            <dt className="text-neutral-500">Notes</dt>
+            <dd>{order.notes}</dd>
+          </div>
+        )}
         <div className="col-span-2">
           <dt className="text-neutral-500">Meals</dt>
           <dd>
-            <ul className="list-disc pl-5">
+            <ul className="flex flex-col gap-1">
               {order.items.map((item) => (
-                <li key={item.id}>
-                  <span className="font-medium">
-                    {item.deliveryDate.toISOString().slice(0, 10)}
-                  </span>{" "}
-                  — {item.dishNameSnapshot}
+                <li key={item.id} className="flex items-center justify-between gap-2">
+                  <span>
+                    <span className="font-medium">
+                      {item.deliveryDate.toISOString().slice(0, 10)}
+                    </span>{" "}
+                    — {item.dishNameSnapshot}
+                  </span>
+                  <form
+                    action={async () => {
+                      "use server";
+                      await toggleOrderItemFulfilled(item.id, !item.fulfilled);
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      className={
+                        item.fulfilled
+                          ? "rounded-md border border-green-300 px-2 py-1 text-xs font-medium text-green-700"
+                          : "rounded-md border border-neutral-300 px-2 py-1 text-xs text-neutral-600"
+                      }
+                    >
+                      {item.fulfilled ? "✓ Fulfilled" : "Mark fulfilled"}
+                    </button>
+                  </form>
                 </li>
               ))}
             </ul>
           </dd>
         </div>
-        <div className="col-span-2">
-          <dt className="text-neutral-500">Stripe</dt>
-          <dd className="break-all text-xs text-neutral-500">
-            Session: {order.stripeCheckoutSessionId}
-            <br />
-            Payment intent: {order.stripePaymentIntentId ?? "—"}
-          </dd>
-        </div>
+        {order.paymentMethod === "stripe" && (
+          <div className="col-span-2">
+            <dt className="text-neutral-500">Stripe</dt>
+            <dd className="break-all text-xs text-neutral-500">
+              Session: {order.stripeCheckoutSessionId}
+              <br />
+              Payment intent: {order.stripePaymentIntentId ?? "—"}
+            </dd>
+          </div>
+        )}
       </dl>
 
       <div className="flex gap-3 border-t border-neutral-200 pt-4">
+        {canMarkPaidCash && (
+          <form
+            action={async () => {
+              "use server";
+              await markOrderPaidCash(order.id);
+            }}
+          >
+            <button
+              type="submit"
+              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white"
+            >
+              Mark paid (cash received)
+            </button>
+          </form>
+        )}
         {canMarkFulfilled && (
           <form
             action={async () => {

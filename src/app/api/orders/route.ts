@@ -6,6 +6,14 @@ import { isDeliveryDateEligible, getWeekday } from "@/lib/cutoff";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const PAYMENT_METHODS = ["stripe", "cash"] as const;
+type PaymentMethodInput = (typeof PAYMENT_METHODS)[number];
+const MAX_NOTES_LENGTH = 1000;
+// Stripe's product_data.name accepts up to 5000 characters (verified
+// directly against the Checkout Sessions API) — the dish list is the
+// operationally critical part, so notes get truncated first if the
+// combined string would somehow exceed it.
+const MAX_STRIPE_PRODUCT_NAME_LENGTH = 5000;
 
 function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
@@ -45,8 +53,16 @@ export async function POST(req: NextRequest) {
     return badRequest("Invalid request body.");
   }
 
-  const { planId, items: rawItems, contactName, contactPhone, contactEmail, deliveryAddress } =
-    body as Record<string, unknown>;
+  const {
+    planId,
+    items: rawItems,
+    contactName,
+    contactPhone,
+    contactEmail,
+    deliveryAddress,
+    paymentMethod: rawPaymentMethod,
+    notes: rawNotes,
+  } = body as Record<string, unknown>;
 
   if (typeof planId !== "string" || planId.trim() === "") {
     return badRequest("planId is required.");
@@ -71,6 +87,25 @@ export async function POST(req: NextRequest) {
   }
   if (typeof deliveryAddress !== "string" || deliveryAddress.trim() === "") {
     return badRequest("deliveryAddress is required.");
+  }
+  if (
+    typeof rawPaymentMethod !== "string" ||
+    !PAYMENT_METHODS.includes(rawPaymentMethod as PaymentMethodInput)
+  ) {
+    return badRequest('paymentMethod must be "stripe" or "cash".');
+  }
+  const paymentMethod = rawPaymentMethod as PaymentMethodInput;
+
+  let notes: string | null = null;
+  if (rawNotes !== undefined && rawNotes !== null) {
+    if (typeof rawNotes !== "string") {
+      return badRequest("notes must be a string.");
+    }
+    const trimmed = rawNotes.trim();
+    if (trimmed.length > MAX_NOTES_LENGTH) {
+      return badRequest(`notes must be ${MAX_NOTES_LENGTH} characters or fewer.`);
+    }
+    notes = trimmed === "" ? null : trimmed;
   }
 
   // --- Authoritative server-side checks. Nothing above this line is trusted. ---
@@ -122,7 +157,40 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // --- Everything validated — create the Stripe Checkout Session first, so
+  // --- Everything validated. Branch on payment method. ---
+
+  if (paymentMethod === "cash") {
+    // No Stripe interaction at all — the order sits "awaiting payment"
+    // until an admin manually marks it paid once cash is collected (see
+    // markOrderPaidCash in admin/orders/actions.ts, strictly gated to
+    // paymentMethod: "cash"). This is the only other way an Order can
+    // ever reach "paid" besides the Stripe webhook.
+    const order = await prisma.order.create({
+      data: {
+        planId: plan.id,
+        planLabelSnapshot: plan.label,
+        planPriceGbpSnapshot: plan.priceGbp,
+        contactName,
+        contactPhone,
+        contactEmail,
+        deliveryAddress,
+        notes,
+        paymentMethod: "cash",
+        status: "pending_payment",
+        items: {
+          create: items.map((item) => ({
+            dishId: item.dishId,
+            dishNameSnapshot: dishById.get(item.dishId)!.name,
+            deliveryDate: new Date(`${item.deliveryDate}T00:00:00.000Z`),
+          })),
+        },
+      },
+    });
+
+    return NextResponse.json({ orderId: order.id });
+  }
+
+  // --- paymentMethod === "stripe": create the Checkout Session first, so
   // we never write an Order row that doesn't correspond to a real session. ---
 
   const orderId = randomUUID();
@@ -133,11 +201,22 @@ export async function POST(req: NextRequest) {
   // Stripe receipt. Stripe's receipt template only ever renders the line
   // item's name (verified against a real receipt page) — product_data's
   // own `description` field is stored but never shown — so the dish list
-  // has to go in the name itself.
+  // (and now notes) has to go in the name itself.
   const itemsSummary = [...items]
     .sort((a, b) => a.deliveryDate.localeCompare(b.deliveryDate))
     .map((item) => `${dishById.get(item.dishId)!.name} (${item.deliveryDate})`)
     .join(", ");
+
+  const baseProductName = `${plan.label} — ${itemsSummary}`;
+  let productName = notes ? `${baseProductName} | Notes: ${notes}` : baseProductName;
+  if (productName.length > MAX_STRIPE_PRODUCT_NAME_LENGTH) {
+    const prefix = `${baseProductName} | Notes: `;
+    const budget = MAX_STRIPE_PRODUCT_NAME_LENGTH - prefix.length - 1; // reserve 1 for "…"
+    productName =
+      notes && budget > 10
+        ? `${prefix}${notes.slice(0, budget)}…`
+        : baseProductName.slice(0, MAX_STRIPE_PRODUCT_NAME_LENGTH);
+  }
 
   let session;
   try {
@@ -148,7 +227,7 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: "gbp",
             unit_amount: plan.priceGbp,
-            product_data: { name: `${plan.label} — ${itemsSummary}` },
+            product_data: { name: productName },
           },
           quantity: 1,
         },
@@ -186,6 +265,8 @@ export async function POST(req: NextRequest) {
       contactPhone,
       contactEmail,
       deliveryAddress,
+      notes,
+      paymentMethod: "stripe",
       status: "pending_payment",
       stripeCheckoutSessionId: session.id,
       items: {

@@ -20,6 +20,11 @@ enum OrderStatus {
   cancelled
 }
 
+enum PaymentMethod {
+  stripe
+  cash
+}
+
 enum Weekday {
   monday
   tuesday
@@ -90,9 +95,20 @@ model Order {
   contactEmail   String
   deliveryAddress String
 
+  // Free-text, whole-order notes (e.g. dietary restrictions) captured once
+  // at checkout — not per-meal.
+  notes String?
+
+  // Defaults to stripe so existing historical rows (all Stripe orders,
+  // this being the first non-Stripe path) backfill correctly.
+  paymentMethod PaymentMethod @default(stripe)
+
   status OrderStatus @default(pending_payment)
 
-  stripeCheckoutSessionId String  @unique
+  // Nullable: cash orders never create a real Stripe Checkout Session.
+  // Postgres allows multiple NULLs in a unique index, so this doesn't
+  // collide across cash orders.
+  stripeCheckoutSessionId String? @unique
   stripePaymentIntentId   String?
 
   items OrderItem[]
@@ -115,6 +131,10 @@ model OrderItem {
 
   // Which day this specific meal is delivered/picked up on.
   deliveryDate DateTime @db.Date
+
+  // Independent of Order.status — no auto-sync either direction. An order
+  // can have some meals fulfilled and others not yet.
+  fulfilled Boolean @default(false)
 
   @@index([orderId])
   @@index([deliveryDate])

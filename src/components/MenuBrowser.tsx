@@ -31,6 +31,10 @@ export type PlanView = {
 
 type SelectedMeal = { dishId: string; date: string };
 
+const SUPPORT_PHONE_DISPLAY = "+44 7872 309460";
+const SUPPORT_PHONE_TEL = "tel:+447872309460";
+const SUPPORT_PHONE_WHATSAPP = "https://wa.me/447872309460";
+
 const WEEKDAY_SHORT: Record<WeekdayName, string> = {
   sunday: "Sun",
   monday: "Mon",
@@ -160,6 +164,19 @@ export default function MenuBrowser({
     selectedPlan !== null &&
     selectedMeals.length === mealCount &&
     hasContactDetails;
+
+  // What's still needed before checkout is possible — shown in the order
+  // summary card so the customer doesn't have to scan the whole page to
+  // work out what's missing.
+  const nextStepMessage = (() => {
+    if (!selectedPlan) return "Choose a plan above to get started.";
+    if (selectedMeals.length < mealCount) {
+      const remaining = mealCount - selectedMeals.length;
+      return `Select ${remaining} more meal${remaining === 1 ? "" : "s"} to continue.`;
+    }
+    if (!hasContactDetails) return "Fill in your delivery details to complete your order.";
+    return null;
+  })();
 
   async function handleCheckout() {
     if (!selectedPlan) return;
@@ -414,128 +431,195 @@ export default function MenuBrowser({
           </span>
         </p>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 text-sm text-espresso">
-            Name
-            <input
-              type="text"
-              value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-espresso">
-            Phone
-            <input
-              type="tel"
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-espresso">
-            Email
-            <input
-              type="email"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-espresso sm:col-span-2">
-            Delivery address
-            <textarea
-              value={deliveryAddress}
-              onChange={(e) => setDeliveryAddress(e.target.value)}
-              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
-              rows={2}
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-espresso sm:col-span-2">
-            Notes / dietary restrictions (optional)
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
-              rows={2}
-              maxLength={1000}
-              placeholder="e.g. nut allergy, no dairy, leave at the door…"
-            />
-          </label>
-          <div className="flex flex-col gap-2 text-sm sm:col-span-2">
-            <span className="font-medium text-espresso">Payment method</span>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <label
-                className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 transition ${
-                  paymentMethod === "stripe"
-                    ? "border-terracotta bg-terracotta/5"
-                    : "border-card-border bg-white hover:border-terracotta/40"
-                }`}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.6fr_1fr]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-sm text-espresso">
+              Name
+              <input
+                type="text"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-espresso">
+              Phone
+              <input
+                type="tel"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-espresso">
+              Email
+              <input
+                type="email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-espresso sm:col-span-2">
+              Delivery address
+              <textarea
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                rows={2}
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-espresso sm:col-span-2">
+              Notes / dietary restrictions (optional)
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="rounded-lg border border-card-border bg-cream-dim px-3 py-2 text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+                rows={2}
+                maxLength={1000}
+                placeholder="e.g. nut allergy, no dairy, leave at the door…"
+              />
+            </label>
+            <div className="flex flex-col gap-2 text-sm sm:col-span-2">
+              <span className="font-medium text-espresso">Payment method</span>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <label
+                  className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 transition ${
+                    paymentMethod === "stripe"
+                      ? "border-terracotta bg-terracotta/5"
+                      : "border-card-border bg-white hover:border-terracotta/40"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    checked={paymentMethod === "stripe"}
+                    onChange={() => setPaymentMethod("stripe")}
+                    className="accent-terracotta"
+                  />
+                  <Icon name="credit_card" className="text-[18px] text-terracotta" />
+                  Pay by card now
+                </label>
+                <label
+                  className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 transition ${
+                    paymentMethod === "cash"
+                      ? "border-terracotta bg-terracotta/5"
+                      : "border-card-border bg-white hover:border-terracotta/40"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    checked={paymentMethod === "cash"}
+                    onChange={() => setPaymentMethod("cash")}
+                    className="accent-terracotta"
+                  />
+                  <Icon name="payments" className="text-[18px] text-terracotta" />
+                  Cash on delivery
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex h-fit flex-col gap-4 rounded-xl border border-card-border bg-cream-dim/60 p-5 lg:sticky lg:top-20">
+            <h3 className="font-serif text-lg font-medium text-espresso">
+              Order summary
+            </h3>
+
+            {selectedPlan ? (
+              <dl className="flex flex-col gap-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <dt className="text-espresso/60">Plan</dt>
+                  <dd className="font-medium text-espresso">{selectedPlan.label}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-espresso/60">Meals selected</dt>
+                  <dd className="font-medium text-espresso">
+                    {selectedMeals.length} of {mealCount}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-card-border pt-2">
+                  <dt className="font-semibold text-espresso">Total</dt>
+                  <dd className="font-semibold text-terracotta">
+                    {formatGbp(selectedPlan.priceGbp)}
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <p className="text-sm text-espresso/60">
+                Choose a plan above to see your order summary.
+              </p>
+            )}
+
+            {nextStepMessage && (
+              <p className="flex items-start gap-1.5 text-sm text-espresso/60">
+                <Icon name="info" className="mt-0.5 shrink-0 text-[16px]" />
+                {nextStepMessage}
+              </p>
+            )}
+
+            {submitError && (
+              <p
+                className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+                role="alert"
               >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  checked={paymentMethod === "stripe"}
-                  onChange={() => setPaymentMethod("stripe")}
-                  className="accent-terracotta"
-                />
-                <Icon name="credit_card" className="text-[18px] text-terracotta" />
-                Pay by card now
-              </label>
-              <label
-                className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 transition ${
-                  paymentMethod === "cash"
-                    ? "border-terracotta bg-terracotta/5"
-                    : "border-card-border bg-white hover:border-terracotta/40"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  checked={paymentMethod === "cash"}
-                  onChange={() => setPaymentMethod("cash")}
-                  className="accent-terracotta"
-                />
-                <Icon name="payments" className="text-[18px] text-terracotta" />
-                Cash on delivery
-              </label>
+                <Icon name="error" className="shrink-0 text-[18px]" />
+                {submitError}
+              </p>
+            )}
+
+            <button
+              type="button"
+              disabled={!canCheckout || isSubmitting}
+              onClick={handleCheckout}
+              className={`flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-white shadow-md transition active:scale-[0.98] ${
+                canCheckout && !isSubmitting
+                  ? "bg-terracotta hover:bg-terracotta-dark hover:shadow-lg"
+                  : "cursor-not-allowed bg-card-border text-espresso/40 shadow-none"
+              }`}
+            >
+              <Icon name="lock" className="text-[18px]" />
+              {isSubmitting
+                ? paymentMethod === "cash"
+                  ? "Placing order…"
+                  : "Redirecting to payment…"
+                : paymentMethod === "cash"
+                  ? `Place order — pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""} cash on delivery`
+                  : `Pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""}`}
+            </button>
+
+            <p className="flex items-center gap-1.5 text-xs text-espresso/50">
+              <Icon name="lock" className="text-[14px]" />
+              Secure checkout, encrypted end-to-end.
+            </p>
+
+            <div className="flex flex-col gap-1.5 border-t border-card-border pt-3">
+              <span className="text-sm text-espresso/60">Need help ordering?</span>
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                <a
+                  href={SUPPORT_PHONE_TEL}
+                  className="flex items-center gap-1 text-sm font-medium text-terracotta hover:underline"
+                >
+                  <Icon name="call" className="text-[16px]" />
+                  Call {SUPPORT_PHONE_DISPLAY}
+                </a>
+                <a
+                  href={SUPPORT_PHONE_WHATSAPP}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-sm font-medium text-terracotta hover:underline"
+                >
+                  <Icon name="chat" className="text-[16px]" />
+                  WhatsApp
+                </a>
+              </div>
             </div>
           </div>
         </div>
-
-        {submitError && (
-          <p
-            className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-            role="alert"
-          >
-            <Icon name="error" className="shrink-0 text-[18px]" />
-            {submitError}
-          </p>
-        )}
-
-        <button
-          type="button"
-          disabled={!canCheckout || isSubmitting}
-          onClick={handleCheckout}
-          className={`flex w-fit items-center gap-2 rounded-full px-6 py-3 font-semibold text-white shadow-md transition active:scale-[0.98] ${
-            canCheckout && !isSubmitting
-              ? "bg-terracotta hover:bg-terracotta-dark hover:shadow-lg"
-              : "cursor-not-allowed bg-card-border text-espresso/40 shadow-none"
-          }`}
-        >
-          <Icon name="lock" className="text-[18px]" />
-          {isSubmitting
-            ? paymentMethod === "cash"
-              ? "Placing order…"
-              : "Redirecting to payment…"
-            : paymentMethod === "cash"
-              ? `Place order — pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""} cash on delivery`
-              : `Pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""}`}
-        </button>
       </section>
     </div>
   );

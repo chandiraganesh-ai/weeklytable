@@ -56,6 +56,8 @@ export default async function Home() {
           leadDays: cutoffConfig.leadDays,
           cutoffTime: cutoffConfig.cutoffTime,
           timezone: cutoffConfig.timezone,
+          deliveryWindowStart: cutoffConfig.deliveryWindowStart,
+          deliveryWindowEnd: cutoffConfig.deliveryWindowEnd,
         }}
       />
     </main>

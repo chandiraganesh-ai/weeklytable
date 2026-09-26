@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { setOrderStatus, markOrderPaidCash, toggleOrderItemFulfilled } from "../actions";
+import { formatGuaranteeWindow, formatTime12h } from "@/lib/deliveryTime";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +87,12 @@ export default async function AdminOrderDetailPage({
                       {item.deliveryDate.toISOString().slice(0, 10)}
                     </span>{" "}
                     — {item.dishNameSnapshot}
+                    {item.deliveryTime && (
+                      <span className="block text-xs text-neutral-500">
+                        Requested {formatTime12h(item.deliveryTime)} · guaranteed{" "}
+                        {formatGuaranteeWindow(item.deliveryTime)}
+                      </span>
+                    )}
                   </span>
                   <form
                     action={async () => {

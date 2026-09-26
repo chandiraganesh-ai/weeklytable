@@ -88,7 +88,14 @@ model CutoffConfig {
   leadDays   Int      @default(1)
   cutoffTime String // "HH:MM" 24h, interpreted in `timezone`
   timezone   String   @default("Europe/London")
-  updatedAt  DateTime @updatedAt
+
+  // The selectable delivery time-slot window (30-min increments in
+  // between) — distinct from cutoffTime, which gates when ORDERS must be
+  // placed by, not what hour a meal can be requested for.
+  deliveryWindowStart String @default("16:00") // "HH:MM", 24h
+  deliveryWindowEnd   String @default("22:00") // "HH:MM", 24h
+
+  updatedAt DateTime @updatedAt
 }
 
 model Order {
@@ -144,6 +151,12 @@ model OrderItem {
 
   // Which day this specific meal is delivered/picked up on.
   deliveryDate DateTime @db.Date
+
+  // Requested delivery time slot ("HH:MM", 24h). Nullable because
+  // historical orders (placed before this feature existed) never
+  // captured one — always required for new orders via server-side
+  // validation in POST /api/orders.
+  deliveryTime String?
 
   // Independent of Order.status — no auto-sync either direction. An order
   // can have some meals fulfilled and others not yet.

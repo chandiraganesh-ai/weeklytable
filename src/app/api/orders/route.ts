@@ -3,9 +3,11 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { isDeliveryDateEligible, getWeekday } from "@/lib/cutoff";
+import { isDeliveryTimeValid } from "@/lib/deliveryTime";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const PAYMENT_METHODS = ["stripe", "cash"] as const;
 type PaymentMethodInput = (typeof PAYMENT_METHODS)[number];
 const MAX_NOTES_LENGTH = 1000;
@@ -19,7 +21,7 @@ function badRequest(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
 }
 
-type OrderItemInput = { dishId: string; deliveryDate: string };
+type OrderItemInput = { dishId: string; deliveryDate: string; deliveryTime: string };
 
 function parseItems(value: unknown): OrderItemInput[] | null {
   if (!Array.isArray(value) || value.length === 0) return null;
@@ -29,13 +31,15 @@ function parseItems(value: unknown): OrderItemInput[] | null {
       typeof raw !== "object" ||
       raw === null ||
       typeof (raw as Record<string, unknown>).dishId !== "string" ||
-      typeof (raw as Record<string, unknown>).deliveryDate !== "string"
+      typeof (raw as Record<string, unknown>).deliveryDate !== "string" ||
+      typeof (raw as Record<string, unknown>).deliveryTime !== "string"
     ) {
       return null;
     }
     items.push({
       dishId: (raw as Record<string, unknown>).dishId as string,
       deliveryDate: (raw as Record<string, unknown>).deliveryDate as string,
+      deliveryTime: (raw as Record<string, unknown>).deliveryTime as string,
     });
   }
   return items;
@@ -70,11 +74,14 @@ export async function POST(req: NextRequest) {
   const items = parseItems(rawItems);
   if (!items) {
     return badRequest(
-      "items must be a non-empty array of { dishId, deliveryDate }.",
+      "items must be a non-empty array of { dishId, deliveryDate, deliveryTime }.",
     );
   }
   if (!items.every((item) => DATE_RE.test(item.deliveryDate))) {
     return badRequest("Each item's deliveryDate must be in YYYY-MM-DD format.");
+  }
+  if (!items.every((item) => TIME_RE.test(item.deliveryTime))) {
+    return badRequest("Each item's deliveryTime must be in HH:MM (24h) format.");
   }
   if (typeof contactName !== "string" || contactName.trim() === "") {
     return badRequest("contactName is required.");
@@ -119,6 +126,15 @@ export async function POST(req: NextRequest) {
   if (ineligibleDates.length > 0) {
     return badRequest(
       "One or more selected delivery dates are no longer available — please refresh and choose again.",
+    );
+  }
+
+  const invalidTimes = Array.from(
+    new Set(items.map((i) => i.deliveryTime)),
+  ).filter((time) => !isDeliveryTimeValid(time, cutoffConfig));
+  if (invalidTimes.length > 0) {
+    return badRequest(
+      "One or more requested delivery times are outside our delivery hours — please refresh and choose again.",
     );
   }
 
@@ -182,6 +198,7 @@ export async function POST(req: NextRequest) {
             dishId: item.dishId,
             dishNameSnapshot: dishById.get(item.dishId)!.name,
             deliveryDate: new Date(`${item.deliveryDate}T00:00:00.000Z`),
+            deliveryTime: item.deliveryTime,
           })),
         },
       },
@@ -204,7 +221,10 @@ export async function POST(req: NextRequest) {
   // (and now notes) has to go in the name itself.
   const itemsSummary = [...items]
     .sort((a, b) => a.deliveryDate.localeCompare(b.deliveryDate))
-    .map((item) => `${dishById.get(item.dishId)!.name} (${item.deliveryDate})`)
+    .map(
+      (item) =>
+        `${dishById.get(item.dishId)!.name} (${item.deliveryDate} at ${item.deliveryTime})`,
+    )
     .join(", ");
 
   const baseProductName = `${plan.label} — ${itemsSummary}`;
@@ -274,6 +294,7 @@ export async function POST(req: NextRequest) {
           dishId: item.dishId,
           dishNameSnapshot: dishById.get(item.dishId)!.name,
           deliveryDate: new Date(`${item.deliveryDate}T00:00:00.000Z`),
+          deliveryTime: item.deliveryTime,
         })),
       },
     },

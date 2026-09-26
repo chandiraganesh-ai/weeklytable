@@ -11,6 +11,8 @@ export async function updateCutoffConfig(formData: FormData) {
   const leadDays = Number(formData.get("leadDays"));
   const cutoffTime = String(formData.get("cutoffTime") ?? "").trim();
   const timezone = String(formData.get("timezone") ?? "").trim();
+  const deliveryWindowStart = String(formData.get("deliveryWindowStart") ?? "").trim();
+  const deliveryWindowEnd = String(formData.get("deliveryWindowEnd") ?? "").trim();
 
   if (!Number.isFinite(leadDays) || leadDays < 1) {
     throw new Error("Lead days must be a positive number.");
@@ -21,11 +23,24 @@ export async function updateCutoffConfig(formData: FormData) {
   if (!timezone) {
     throw new Error("Timezone is required.");
   }
+  if (!TIME_RE.test(deliveryWindowStart) || !TIME_RE.test(deliveryWindowEnd)) {
+    throw new Error("Delivery window times must be in HH:MM (24h) format.");
+  }
+  if (deliveryWindowStart >= deliveryWindowEnd) {
+    throw new Error("Delivery window start must be before its end.");
+  }
 
   await prisma.cutoffConfig.upsert({
     where: { id: "default" },
-    update: { leadDays, cutoffTime, timezone },
-    create: { id: "default", leadDays, cutoffTime, timezone },
+    update: { leadDays, cutoffTime, timezone, deliveryWindowStart, deliveryWindowEnd },
+    create: {
+      id: "default",
+      leadDays,
+      cutoffTime,
+      timezone,
+      deliveryWindowStart,
+      deliveryWindowEnd,
+    },
   });
 
   revalidatePath("/admin/settings");

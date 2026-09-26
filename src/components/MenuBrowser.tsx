@@ -8,6 +8,12 @@ import {
   type CutoffConfigLike,
   type WeekdayName,
 } from "@/lib/cutoff";
+import {
+  getDeliveryTimeSlots,
+  formatGuaranteeWindow,
+  formatTime12h,
+  type DeliveryWindowConfigLike,
+} from "@/lib/deliveryTime";
 import { CATEGORY_LABELS, DIETARY_TAG_LABELS } from "@/lib/dishOptions";
 import type { Category, DietaryTag } from "@/generated/prisma/enums";
 import { Icon } from "@/components/Icon";
@@ -29,7 +35,7 @@ export type PlanView = {
   priceGbp: number;
 };
 
-type SelectedMeal = { dishId: string; date: string };
+type SelectedMeal = { dishId: string; date: string; time: string };
 
 const SUPPORT_PHONE_DISPLAY = "+44 7872 309460";
 const SUPPORT_PHONE_TEL = "tel:+447872309460";
@@ -77,14 +83,19 @@ export default function MenuBrowser({
 }: {
   dishes: DishView[];
   plans: PlanView[];
-  cutoffConfig: CutoffConfigLike;
+  cutoffConfig: CutoffConfigLike & DeliveryWindowConfigLike;
 }) {
   const eligibleDates = useMemo(
     () => getEligibleWindow(cutoffConfig),
     [cutoffConfig],
   );
+  const deliveryTimeSlots = useMemo(
+    () => getDeliveryTimeSlots(cutoffConfig),
+    [cutoffConfig],
+  );
 
   const [activeDate, setActiveDate] = useState(eligibleDates[0]);
+  const [activeTime, setActiveTime] = useState(deliveryTimeSlots[0]);
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [search, setSearch] = useState("");
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
@@ -135,19 +146,28 @@ export default function MenuBrowser({
     setSelectedMeals([]); // changing tier resets the (now differently-sized) selection
   }
 
-  function toggleMeal(dishId: string, date: string) {
+  function toggleMeal(dishId: string, date: string, time: string) {
     setSelectedMeals((current) => {
       const exists = current.some((m) => m.dishId === dishId && m.date === date);
       if (exists) {
         return current.filter((m) => !(m.dishId === dishId && m.date === date));
       }
       if (current.length >= mealCount) return current; // bounded by the chosen tier
-      return [...current, { dishId, date }];
+      return [...current, { dishId, date, time }];
     });
   }
 
   function removeMeal(index: number) {
     setSelectedMeals((current) => current.filter((_, i) => i !== index));
+  }
+
+  // Lets a customer adjust one meal's requested time independently after
+  // adding it — two meals can already share the same delivery date, so a
+  // per-item override (not just the day-level default) is needed.
+  function updateMealTime(index: number, time: string) {
+    setSelectedMeals((current) =>
+      current.map((m, i) => (i === index ? { ...m, time } : m)),
+    );
   }
 
   function dishName(dishId: string) {
@@ -191,6 +211,7 @@ export default function MenuBrowser({
           items: selectedMeals.map((m) => ({
             dishId: m.dishId,
             deliveryDate: m.date,
+            deliveryTime: m.time,
           })),
           contactName,
           contactPhone,
@@ -272,21 +293,43 @@ export default function MenuBrowser({
         </p>
 
         {selectedMeals.length > 0 && (
-          <ul className="flex flex-col gap-1 rounded-xl border border-card-border bg-cream-dim/60 p-4 text-sm">
+          <ul className="flex flex-col gap-2 rounded-xl border border-card-border bg-cream-dim/60 p-4 text-sm">
             {selectedMeals.map((meal, i) => (
-              <li key={i} className="flex items-center justify-between gap-2">
-                <span>
-                  <span className="font-medium text-terracotta">{meal.date}</span>{" "}
-                  — {dishName(meal.dishId)}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeMeal(i)}
-                  className="text-espresso/50 hover:text-terracotta"
-                  aria-label={`Remove ${dishName(meal.dishId)} on ${meal.date}`}
-                >
-                  ✕
-                </button>
+              <li
+                key={i}
+                className="flex flex-col gap-1.5 rounded-lg border border-card-border/60 bg-white/70 px-3 py-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span>
+                    <span className="font-medium text-terracotta">{meal.date}</span>{" "}
+                    — {dishName(meal.dishId)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeMeal(i)}
+                    className="text-espresso/50 hover:text-terracotta"
+                    aria-label={`Remove ${dishName(meal.dishId)} on ${meal.date}`}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-espresso/60">
+                  <label className="flex items-center gap-1">
+                    <Icon name="schedule" className="text-[14px] text-terracotta" />
+                    <select
+                      value={meal.time}
+                      onChange={(e) => updateMealTime(i, e.target.value)}
+                      className="rounded border border-card-border bg-white px-1 py-0.5 text-xs text-espresso"
+                    >
+                      {deliveryTimeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {formatTime12h(slot)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <span>Guaranteed {formatGuaranteeWindow(meal.time)}</span>
+                </div>
               </li>
             ))}
           </ul>
@@ -320,6 +363,27 @@ export default function MenuBrowser({
             );
           })}
         </div>
+
+        <label className="flex flex-wrap items-center gap-2 text-sm">
+          <Icon name="schedule" className="text-[16px] text-terracotta" />
+          <span className="text-espresso/70">
+            Delivery time for {formatDayTab(activeDate)}:
+          </span>
+          <select
+            value={activeTime}
+            onChange={(e) => setActiveTime(e.target.value)}
+            className="rounded-full border border-card-border bg-white px-3 py-1 text-sm text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+          >
+            {deliveryTimeSlots.map((slot) => (
+              <option key={slot} value={slot}>
+                {formatTime12h(slot)}
+              </option>
+            ))}
+          </select>
+          <span className="text-xs text-espresso/50">
+            (guaranteed {formatGuaranteeWindow(activeTime)})
+          </span>
+        </label>
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap gap-2">
@@ -378,7 +442,7 @@ export default function MenuBrowser({
                 key={dish.id}
                 type="button"
                 disabled={isDisabled}
-                onClick={() => toggleMeal(dish.id, activeDate)}
+                onClick={() => toggleMeal(dish.id, activeDate, activeTime)}
                 className={`relative flex flex-col overflow-hidden rounded-xl border bg-white text-left shadow-sm transition active:scale-[0.98] ${
                   isSelected
                     ? "border-terracotta shadow-md ring-2 ring-terracotta"
@@ -423,11 +487,13 @@ export default function MenuBrowser({
         <p className="flex items-start gap-1.5 text-sm text-espresso/70">
           <Icon name="schedule" className="mt-0.5 shrink-0 text-[18px] text-terracotta" />
           <span>
-            Orders must be placed at least {cutoffConfig.leadDays} day
-            {cutoffConfig.leadDays === 1 ? "" : "s"} ahead, by{" "}
-            {cutoffConfig.cutoffTime} the day before each delivery date. Dates
-            are re-checked when you pay — they can become unavailable if you
-            take a while to check out.
+            Order by {formatTime12h(cutoffConfig.cutoffTime)} the day before
+            delivery (e.g., order by {formatTime12h(cutoffConfig.cutoffTime)}{" "}
+            Monday for Tuesday delivery). Choose a delivery time between{" "}
+            {formatTime12h(cutoffConfig.deliveryWindowStart)} and{" "}
+            {formatTime12h(cutoffConfig.deliveryWindowEnd)} — we guarantee
+            your food arrives within 1 hour of the time you request. Dates
+            are reserved upon payment.
           </span>
         </p>
 

@@ -32,7 +32,7 @@ export async function GET(
       deliveryAddress: true,
       notes: true,
       items: {
-        select: { dishNameSnapshot: true, deliveryDate: true },
+        select: { dishNameSnapshot: true, deliveryDate: true, deliveryTime: true },
         orderBy: { deliveryDate: "asc" },
       },
     },
@@ -55,6 +55,7 @@ export async function GET(
     meals: order.items.map((i) => ({
       dishName: i.dishNameSnapshot,
       deliveryDate: i.deliveryDate.toISOString().slice(0, 10),
+      deliveryTime: i.deliveryTime,
     })),
   });
 }

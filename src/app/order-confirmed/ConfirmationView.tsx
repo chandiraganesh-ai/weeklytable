@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { formatGuaranteeWindow, formatTime12h } from "@/lib/deliveryTime";
 
 type MealSummary = {
   dishName: string;
   deliveryDate: string;
+  deliveryTime: string | null;
 };
 
 type OrderSummary = {
@@ -108,6 +110,12 @@ export default function ConfirmationView() {
                 <li key={i}>
                   <span className="font-medium text-terracotta">{meal.deliveryDate}</span>{" "}
                   — {meal.dishName}
+                  {meal.deliveryTime && (
+                    <span className="block text-xs text-espresso/60">
+                      Requested {formatTime12h(meal.deliveryTime)} · guaranteed{" "}
+                      {formatGuaranteeWindow(meal.deliveryTime)}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

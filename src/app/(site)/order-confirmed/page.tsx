@@ -4,7 +4,7 @@ import ConfirmationView from "./ConfirmationView";
 
 export default function OrderConfirmedPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-4 bg-cream p-8 font-sans text-espresso antialiased">
+    <div className="mx-auto flex max-w-lg flex-col gap-4 p-8">
       <h1 className="font-serif text-2xl font-semibold text-espresso">
         Order confirmation
       </h1>
@@ -19,6 +19,6 @@ export default function OrderConfirmedPage() {
       >
         ← Back to home
       </Link>
-    </main>
+    </div>
   );
 }

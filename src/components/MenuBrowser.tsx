@@ -17,6 +17,11 @@ import {
 import { CATEGORY_LABELS, DIETARY_TAG_LABELS } from "@/lib/dishOptions";
 import type { Category, DietaryTag } from "@/generated/prisma/enums";
 import { Icon } from "@/components/Icon";
+import {
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_PHONE_TEL,
+  SUPPORT_PHONE_WHATSAPP,
+} from "@/lib/contact";
 
 export type DishView = {
   id: string;
@@ -36,10 +41,6 @@ export type PlanView = {
 };
 
 type SelectedMeal = { dishId: string; date: string; time: string };
-
-const SUPPORT_PHONE_DISPLAY = "+44 7872 309460";
-const SUPPORT_PHONE_TEL = "tel:+447872309460";
-const SUPPORT_PHONE_WHATSAPP = "https://wa.me/447872309460";
 
 const WEEKDAY_SHORT: Record<WeekdayName, string> = {
   sunday: "Sun",
@@ -113,6 +114,12 @@ export default function MenuBrowser({
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) ?? null;
   const mealCount = selectedPlan?.mealCount ?? 0;
+
+  // The 3-meal plan is the natural middle option to steer customers toward;
+  // fall back to the middle tier by position if that exact size isn't offered.
+  const mostPopularPlanId =
+    plans.find((p) => p.mealCount === 3)?.id ??
+    (plans.length >= 3 ? plans[Math.floor(plans.length / 2)].id : null);
 
   const activeWeekday = getWeekday(activeDate);
 
@@ -253,27 +260,39 @@ export default function MenuBrowser({
           Choose a plan
         </h2>
         <div className="flex flex-wrap gap-3">
-          {plans.map((plan) => (
-            <button
-              key={plan.id}
-              type="button"
-              onClick={() => selectPlan(plan.id)}
-              className={`rounded-xl border px-5 py-4 text-left shadow-sm transition active:scale-[0.98] ${
-                plan.id === selectedPlanId
-                  ? "border-terracotta bg-terracotta text-white shadow-md"
-                  : "border-card-border bg-white hover:-translate-y-0.5 hover:border-terracotta/50 hover:shadow-md"
-              }`}
-            >
-              <div className="font-serif text-lg font-medium">{plan.label}</div>
-              <div
-                className={`text-sm ${
-                  plan.id === selectedPlanId ? "text-white/90" : "text-espresso/70"
-                }`}
+          {plans.map((plan) => {
+            const isMostPopular = plan.id === mostPopularPlanId;
+            return (
+              <button
+                key={plan.id}
+                type="button"
+                onClick={() => selectPlan(plan.id)}
+                className={`relative rounded-xl border px-5 py-4 text-left shadow-sm transition active:scale-[0.98] ${
+                  plan.id === selectedPlanId
+                    ? "border-terracotta bg-terracotta text-white shadow-md"
+                    : "border-card-border bg-white hover:-translate-y-0.5 hover:border-terracotta/50 hover:shadow-md"
+                } ${isMostPopular ? "mt-2.5" : ""}`}
               >
-                {formatGbp(plan.priceGbp)}
-              </div>
-            </button>
-          ))}
+                {isMostPopular && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-honey px-2.5 py-0.5 text-xs font-semibold text-espresso shadow-sm">
+                    Most popular
+                  </span>
+                )}
+                <div className="font-serif text-lg font-medium">{plan.label}</div>
+                <div
+                  className={`text-sm ${
+                    plan.id === selectedPlanId ? "text-white/90" : "text-espresso/70"
+                  }`}
+                >
+                  {formatGbp(plan.priceGbp)}
+                  <span className={plan.id === selectedPlanId ? "text-white/70" : "text-espresso/50"}>
+                    {" "}
+                    ({formatGbp(plan.priceGbp / plan.mealCount)} / meal)
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -313,21 +332,24 @@ export default function MenuBrowser({
                     ✕
                   </button>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-espresso/60">
-                  <label className="flex items-center gap-1">
-                    <Icon name="schedule" className="text-[14px] text-terracotta" />
-                    <select
-                      value={meal.time}
-                      onChange={(e) => updateMealTime(i, e.target.value)}
-                      className="rounded border border-card-border bg-white px-1 py-0.5 text-xs text-espresso"
-                    >
-                      {deliveryTimeSlots.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {formatTime12h(slot)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-espresso/60">
+                  <Icon name="schedule" className="text-[14px] text-terracotta" />
+                  <div className="flex flex-wrap gap-1">
+                    {deliveryTimeSlots.map((slot) => (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => updateMealTime(i, slot)}
+                        className={`rounded-full border px-2 py-0.5 text-xs transition active:scale-95 ${
+                          slot === meal.time
+                            ? "border-terracotta bg-terracotta text-white"
+                            : "border-card-border bg-white text-espresso hover:border-terracotta/50"
+                        }`}
+                      >
+                        {formatTime12h(slot)}
+                      </button>
+                    ))}
+                  </div>
                   <span>Guaranteed {formatGuaranteeWindow(meal.time)}</span>
                 </div>
               </li>
@@ -364,26 +386,31 @@ export default function MenuBrowser({
           })}
         </div>
 
-        <label className="flex flex-wrap items-center gap-2 text-sm">
-          <Icon name="schedule" className="text-[16px] text-terracotta" />
-          <span className="text-espresso/70">
+        <div className="flex flex-col gap-2">
+          <span className="flex items-center gap-1.5 text-sm text-espresso/70">
+            <Icon name="schedule" className="text-[16px] text-terracotta" />
             Delivery time for {formatDayTab(activeDate)}:
+            <span className="text-xs text-espresso/50">
+              (guaranteed {formatGuaranteeWindow(activeTime)})
+            </span>
           </span>
-          <select
-            value={activeTime}
-            onChange={(e) => setActiveTime(e.target.value)}
-            className="rounded-full border border-card-border bg-white px-3 py-1 text-sm text-espresso focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
-          >
+          <div className="flex flex-wrap gap-2">
             {deliveryTimeSlots.map((slot) => (
-              <option key={slot} value={slot}>
+              <button
+                key={slot}
+                type="button"
+                onClick={() => setActiveTime(slot)}
+                className={`rounded-full border px-3 py-1 text-sm transition active:scale-95 ${
+                  slot === activeTime
+                    ? "border-terracotta bg-terracotta text-white shadow-sm"
+                    : "border-card-border bg-white text-espresso hover:border-terracotta/50"
+                }`}
+              >
                 {formatTime12h(slot)}
-              </option>
+              </button>
             ))}
-          </select>
-          <span className="text-xs text-espresso/50">
-            (guaranteed {formatGuaranteeWindow(activeTime)})
-          </span>
-        </label>
+          </div>
+        </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap gap-2">
@@ -461,16 +488,16 @@ export default function MenuBrowser({
                     fill
                     className="object-cover"
                   />
+                  {dish.dietaryTag && (
+                    <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-xs font-medium text-sage shadow-sm">
+                      {DIETARY_TAG_LABELS[dish.dietaryTag]}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1 p-4">
                   <span className="font-serif text-lg font-medium text-espresso">
                     {dish.name}
                   </span>
-                  {dish.dietaryTag && (
-                    <span className="inline-block w-fit rounded-full bg-sage/10 px-2 py-0.5 text-xs font-medium text-sage">
-                      {DIETARY_TAG_LABELS[dish.dietaryTag]}
-                    </span>
-                  )}
                   <p className="text-sm text-espresso/70">{dish.description}</p>
                 </div>
               </button>
@@ -568,7 +595,12 @@ export default function MenuBrowser({
                     className="accent-terracotta"
                   />
                   <Icon name="credit_card" className="text-[18px] text-terracotta" />
-                  Pay by card now
+                  <span>
+                    Pay by card now
+                    <span className="block text-xs font-normal text-espresso/50">
+                      Visa, Mastercard, Apple Pay
+                    </span>
+                  </span>
                 </label>
                 <label
                   className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-4 py-3 transition ${

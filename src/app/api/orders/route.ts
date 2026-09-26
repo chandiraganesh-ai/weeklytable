@@ -258,7 +258,7 @@ export async function POST(req: NextRequest) {
       },
       customer_email: contactEmail,
       success_url: `${origin}/order-confirmed?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/?checkout=cancelled`,
+      cancel_url: `${origin}/order?checkout=cancelled`,
     });
   } catch (err) {
     console.error("Stripe Checkout session creation failed:", err);

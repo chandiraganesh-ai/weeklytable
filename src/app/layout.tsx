@@ -22,7 +22,8 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "Weekly Table",
-  description: "Pre-order home-cooked meals for delivery, chosen by the week.",
+  description:
+    "Homemade food, made with care, delivered hot across Southend-on-Sea, 7 days a week.",
 };
 
 export default function RootLayout({

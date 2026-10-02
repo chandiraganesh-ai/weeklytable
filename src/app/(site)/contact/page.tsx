@@ -64,20 +64,38 @@ export default async function ContactPage() {
           </a>
         </div>
 
-        <div className="mt-6 rounded-xl border border-card-border bg-white p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-light text-sage">
-              <Icon name="schedule" className="text-[22px]" />
-            </span>
-            <div>
-              <h2 className="font-serif text-lg font-medium text-espresso">
-                Delivery hours
-              </h2>
-              <p className="mt-1 text-espresso/70">
-                Every day, between {formatTime12h(cutoffConfig.deliveryWindowStart)} and{" "}
-                {formatTime12h(cutoffConfig.deliveryWindowEnd)}. Choose your
-                exact time slot when you order.
-              </p>
+        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-light text-sage">
+                <Icon name="schedule" className="text-[22px]" />
+              </span>
+              <div>
+                <h2 className="font-serif text-lg font-medium text-espresso">
+                  Delivery hours
+                </h2>
+                <p className="mt-1 text-espresso/70">
+                  Every day, between {formatTime12h(cutoffConfig.deliveryWindowStart)} and{" "}
+                  {formatTime12h(cutoffConfig.deliveryWindowEnd)}. Choose your
+                  exact time slot when you order.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-light text-sage">
+                <Icon name="location_on" className="text-[22px]" />
+              </span>
+              <div>
+                <h2 className="font-serif text-lg font-medium text-espresso">
+                  Delivery area
+                </h2>
+                <p className="mt-1 text-espresso/70">
+                  We currently deliver across Southend-on-Sea, 7 days a week.
+                </p>
+              </div>
             </div>
           </div>
         </div>

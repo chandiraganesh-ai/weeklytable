@@ -43,12 +43,13 @@ export default function HomePage() {
         />
         <div className="relative mx-auto max-w-6xl px-6 py-24 text-cream sm:py-32">
           <h1 className="max-w-xl font-serif text-4xl font-medium leading-tight sm:text-6xl">
-            Home-cooked meals, delivered when you want them.
+            Homemade food, made with care.
           </h1>
           <p className="mt-5 max-w-lg text-lg text-cream/90">
-            Choose your dishes, pick a day and time for each one, and pay
-            however suits you. No subscription, no fixed menu — just a
-            week&apos;s worth of good food, on your schedule.
+            Good food should be fresh, nourishing, affordable and enjoyable —
+            without the shopping, cooking and washing up. Choose your dishes,
+            pick a day and time for each one, and we&apos;ll bring it to your
+            door hot, across Southend-on-Sea, 7 days a week.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -87,23 +88,33 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 sm:py-20 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-terracotta">
-              Our story
+              About Weekly Table
             </p>
             <h2 className="mt-2 font-serif text-3xl font-medium text-espresso sm:text-4xl">
-              Cooked properly. Delivered honestly.
+              Food that feels like it was made at home.
             </h2>
             <p className="mt-4 text-espresso/70">
-              Weekly Table started with a simple frustration: takeaway gets
-              old fast, and cooking every night isn&apos;t always realistic.
-              We wanted meals that tasted home-cooked, arrived when we
-              actually needed them, and didn&apos;t lock us into a
-              subscription we&apos;d forget to cancel.
+              Born from our experience creating and serving food through The
+              Burrito and Tasty Bowls-Globowl, Weekly Table brings together
+              the things we love most about food: quality ingredients,
+              generous portions, exciting flavours and, above all, food that
+              feels like it has been made at home.
             </p>
             <p className="mt-4 text-espresso/70">
-              So that&apos;s what we built: a small, changing menu of dishes
-              cooked fresh, delivered to a day and time you choose, paid for
-              however you like. No commitments — just a good meal, on your
-              terms.
+              Our menu brings together proper British homemade favourites —
+              Cottage Pie, Shepherd&apos;s Pie, Roast Chicken, Fish &amp;
+              Chips, Steak &amp; Onion Pie, Sausage &amp; Mash — alongside
+              Italian, Mexican, Indian and Asian-inspired dishes, healthy
+              bowls and salads, and other world favourites. Whether you fancy
+              a traditional homemade dinner or something a little different,
+              there&apos;s plenty of choice while keeping the comfort and
+              quality of a freshly prepared meal.
+            </p>
+            <p className="mt-4 text-espresso/70">
+              We prepare every meal with care and deliver it hot to your door
+              across Southend-on-Sea, 7 days a week — with options for
+              vegetarian, vegan and gluten-free diets, so there&apos;s
+              something for everyone at the table.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4 text-center">
@@ -114,21 +125,21 @@ export default function HomePage() {
               </p>
             </div>
             <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
+              <p className="font-serif text-3xl font-medium text-terracotta">7</p>
+              <p className="mt-1 text-sm text-espresso/70">
+                Days a week we deliver
+              </p>
+            </div>
+            <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
+              <p className="font-serif text-3xl font-medium text-terracotta">3</p>
+              <p className="mt-1 text-sm text-espresso/70">
+                Diets catered for — veggie, vegan &amp; gluten-free
+              </p>
+            </div>
+            <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
               <p className="font-serif text-3xl font-medium text-terracotta">0</p>
               <p className="mt-1 text-sm text-espresso/70">
                 Subscriptions required
-              </p>
-            </div>
-            <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
-              <p className="font-serif text-3xl font-medium text-terracotta">7</p>
-              <p className="mt-1 text-sm text-espresso/70">
-                Days of the week to choose from
-              </p>
-            </div>
-            <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
-              <p className="font-serif text-3xl font-medium text-terracotta">2</p>
-              <p className="mt-1 text-sm text-espresso/70">
-                Ways to pay — card or cash
               </p>
             </div>
           </div>
@@ -137,10 +148,11 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-20">
         <h2 className="font-serif text-3xl font-medium text-espresso sm:text-4xl">
-          Ready to eat well this week?
+          Good food. More time for you.
         </h2>
         <p className="mx-auto mt-3 max-w-md text-espresso/70">
-          Browse the menu, build your week, and choose when it arrives.
+          No shopping. No cooking. No cleaning. Just fresh, tasty homemade
+          food delivered to your door.
         </p>
         <Link
           href="/order"

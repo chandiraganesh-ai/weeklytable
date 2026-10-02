@@ -40,7 +40,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
           <div>
             <p className="font-serif text-base font-medium text-espresso">Weekly Table</p>
-            <p>Home-cooked meals, delivered when you want them.</p>
+            <p>Homemade food, made with care — delivered across Southend-on-Sea.</p>
           </div>
           <div className="flex flex-col items-center gap-1 sm:items-end">
             <a href={SUPPORT_PHONE_TEL} className="transition hover:text-terracotta">

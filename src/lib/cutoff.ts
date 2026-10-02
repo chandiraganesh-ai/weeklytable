@@ -103,6 +103,26 @@ export function isDeliveryDateEligible(
   return getEligibleWindow(config, now, windowDays).includes(deliveryDate);
 }
 
+/**
+ * `days` consecutive "YYYY-MM-DD" dates starting from today (in the given
+ * timezone) — a plain reporting window, unrelated to the orderable-date
+ * window above (which also applies leadDays/cutoffTime). Used for admin
+ * reports like the upcoming-deliveries overview.
+ */
+export function getDateWindow(
+  timezone: string,
+  days: number,
+  now: Date = new Date(),
+): string[] {
+  const { year, month, day } = partsInTimezone(now, timezone);
+  const dates: string[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = addDays(year, month, day, i);
+    dates.push(formatDateISO(d.year, d.month, d.day));
+  }
+  return dates;
+}
+
 const WEEKDAYS = [
   "sunday",
   "monday",

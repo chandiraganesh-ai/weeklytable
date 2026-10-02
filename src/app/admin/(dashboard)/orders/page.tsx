@@ -43,7 +43,15 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Orders</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Orders</h1>
+        <Link
+          href="/admin/orders/upcoming"
+          className="text-sm text-neutral-600 underline"
+        >
+          Upcoming deliveries (printable) →
+        </Link>
+      </div>
 
       <form method="GET" className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 text-sm">

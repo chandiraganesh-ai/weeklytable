@@ -20,7 +20,7 @@ export default async function AdminDashboardLayout({
 
   return (
     <div className="min-h-screen">
-      <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-3">
+      <header className="flex items-center justify-between border-b border-neutral-200 px-6 py-3 print:hidden">
         <nav className="flex gap-4 text-sm font-medium">
           {NAV_LINKS.map((link) => (
             <Link
@@ -34,7 +34,7 @@ export default async function AdminDashboardLayout({
         </nav>
         <LogoutButton />
       </header>
-      <main className="p-6">{children}</main>
+      <main className="p-6 print:p-0">{children}</main>
     </div>
   );
 }

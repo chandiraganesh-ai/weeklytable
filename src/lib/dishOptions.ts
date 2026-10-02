@@ -5,10 +5,13 @@ import { Category, DietaryTag } from "@/generated/prisma/enums";
 // here, which is what actually keeps these display maps from drifting out
 // of sync with the schema (the bug this file exists to prevent).
 export const CATEGORY_LABELS: Record<Category, string> = {
-  classics: "Classics",
-  italian: "Italian & Mediterranean",
-  bowls: "Bowls",
+  classics: "English Classics",
+  italian: "Italian",
+  bowls: "Feel-Good Bowls & Salads",
   mexican: "Mexican",
+  indian: "Indian",
+  asian: "Pan-Asian",
+  global: "Global Favourites",
 };
 
 export const DIETARY_TAG_LABELS: Record<DietaryTag, string> = {

@@ -40,6 +40,9 @@ enum Category {
   italian
   bowls
   mexican
+  indian
+  asian
+  global
 }
 
 enum DietaryTag {

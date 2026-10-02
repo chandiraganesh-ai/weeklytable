@@ -30,8 +30,8 @@ export default function HomePage() {
     <>
       <section className="relative flex min-h-[560px] items-center overflow-hidden sm:min-h-[640px]">
         <Image
-          src="https://images.unsplash.com/photo-1542986151-13ecf8e0453e"
-          alt="A flat lay of home-cooked dishes on a table"
+          src="https://images.unsplash.com/photo-1696935257293-9ec4f03074a1"
+          alt="A golden-topped homemade shepherd's pie fresh from the oven"
           fill
           priority
           sizes="100vw"

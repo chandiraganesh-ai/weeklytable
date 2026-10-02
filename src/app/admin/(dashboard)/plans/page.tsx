@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import { togglePlanActive } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ function formatGbp(pence: number) {
 }
 
 export default async function AdminPlansPage() {
+  await requireRole(["owner"]);
   const plans = await prisma.plan.findMany({ orderBy: { sortOrder: "asc" } });
 
   return (

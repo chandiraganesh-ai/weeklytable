@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/dal";
+import { requireRole } from "@/lib/dal";
 import { Weekday, Category, DietaryTag } from "@/generated/prisma/enums";
 
 const VALID_WEEKDAYS = new Set(Object.values(Weekday));
@@ -47,7 +47,7 @@ function readDishFields(formData: FormData) {
 }
 
 export async function createDish(formData: FormData) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   const data = readDishFields(formData);
   await prisma.dish.create({ data });
   revalidatePath("/admin/dishes");
@@ -56,7 +56,7 @@ export async function createDish(formData: FormData) {
 }
 
 export async function updateDish(dishId: string, formData: FormData) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   const data = readDishFields(formData);
   await prisma.dish.update({ where: { id: dishId }, data });
   revalidatePath("/admin/dishes");
@@ -65,7 +65,7 @@ export async function updateDish(dishId: string, formData: FormData) {
 }
 
 export async function toggleDishActive(dishId: string, isActive: boolean) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   await prisma.dish.update({ where: { id: dishId }, data: { isActive } });
   revalidatePath("/admin/dishes");
   revalidatePath("/");

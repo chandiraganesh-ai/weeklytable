@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   const passwordHash = admin?.passwordHash ?? "$2b$10$invalidsaltinvalidsaltinvalidsal";
   const isValid = await bcrypt.compare(password, passwordHash);
 
-  if (!admin || !isValid) {
+  if (!admin || !isValid || !admin.isActive) {
     return NextResponse.json(
       { error: "Invalid email or password." },
       { status: 401 },

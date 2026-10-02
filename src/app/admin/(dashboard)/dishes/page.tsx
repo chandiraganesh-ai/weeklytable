@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import { toggleDishActive } from "./actions";
 import { CATEGORY_LABELS, DIETARY_TAG_LABELS } from "@/lib/dishOptions";
 
@@ -24,6 +25,7 @@ function formatDays(days: string[]) {
 }
 
 export default async function AdminDishesPage() {
+  await requireRole(["owner"]);
   const dishes = await prisma.dish.findMany({ orderBy: { name: "asc" } });
 
   return (

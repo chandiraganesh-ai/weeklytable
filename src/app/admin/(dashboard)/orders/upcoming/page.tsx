@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import { getDateWindow, getWeekday } from "@/lib/cutoff";
 import { formatTime12h } from "@/lib/deliveryTime";
 import PrintButton from "@/components/admin/PrintButton";
@@ -24,6 +25,7 @@ function formatDayHeading(date: string) {
 }
 
 export default async function UpcomingOrdersPage() {
+  const session = await requireRole(["owner", "kitchen", "delivery"]);
   const cutoffConfig = await prisma.cutoffConfig.findUniqueOrThrow({
     where: { id: "default" },
   });
@@ -173,12 +175,14 @@ export default async function UpcomingOrdersPage() {
       <div className="flex items-center justify-between print:hidden">
         <div>
           <h1 className="text-2xl font-semibold">Upcoming deliveries</h1>
-          <Link
-            href="/admin/orders"
-            className="text-sm text-neutral-600 underline"
-          >
-            ← Back to all orders
-          </Link>
+          {session.role !== "delivery" && (
+            <Link
+              href="/admin/orders"
+              className="text-sm text-neutral-600 underline"
+            >
+              ← Back to all orders
+            </Link>
+          )}
         </div>
         <PrintButton />
       </div>

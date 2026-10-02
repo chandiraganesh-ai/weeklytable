@@ -2,12 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/dal";
+import { requireRole } from "@/lib/dal";
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export async function updateCutoffConfig(formData: FormData) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   const leadDays = Number(formData.get("leadDays"));
   const cutoffTime = String(formData.get("cutoffTime") ?? "").trim();
   const timezone = String(formData.get("timezone") ?? "").trim();

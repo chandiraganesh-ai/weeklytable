@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import { updateCutoffConfig } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
+  await requireRole(["owner"]);
   const config = await prisma.cutoffConfig.findUniqueOrThrow({
     where: { id: "default" },
   });

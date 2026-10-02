@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import DishForm from "@/components/admin/DishForm";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import { updateDish } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export default async function EditDishPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireRole(["owner"]);
   const { id } = await params;
   const dish = await prisma.dish.findUnique({ where: { id } });
   if (!dish) notFound();

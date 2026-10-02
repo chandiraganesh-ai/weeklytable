@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import type { Prisma } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export default async function AdminOrdersPage({
     paymentMethod?: string;
   }>;
 }) {
+  await requireRole(["owner", "kitchen"]);
   const params = await searchParams;
 
   const where: Prisma.OrderWhereInput = {};

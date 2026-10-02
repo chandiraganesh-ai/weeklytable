@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/dal";
+import { requireRole } from "@/lib/dal";
 
 function readPlanFields(formData: FormData) {
   const label = String(formData.get("label") ?? "").trim();
@@ -24,7 +24,7 @@ function readPlanFields(formData: FormData) {
 }
 
 export async function createPlan(formData: FormData) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   const data = readPlanFields(formData);
   await prisma.plan.create({ data });
   revalidatePath("/admin/plans");
@@ -33,7 +33,7 @@ export async function createPlan(formData: FormData) {
 }
 
 export async function updatePlan(planId: string, formData: FormData) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   const data = readPlanFields(formData);
   await prisma.plan.update({ where: { id: planId }, data });
   revalidatePath("/admin/plans");
@@ -42,7 +42,7 @@ export async function updatePlan(planId: string, formData: FormData) {
 }
 
 export async function togglePlanActive(planId: string, isActive: boolean) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   await prisma.plan.update({ where: { id: planId }, data: { isActive } });
   revalidatePath("/admin/plans");
   revalidatePath("/");

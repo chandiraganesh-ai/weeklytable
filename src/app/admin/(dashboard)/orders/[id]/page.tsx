@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import { setOrderStatus, markOrderPaidCash, toggleOrderItemFulfilled } from "../actions";
 import { formatGuaranteeWindow, formatTime12h } from "@/lib/deliveryTime";
 
@@ -15,6 +16,7 @@ export default async function AdminOrderDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await requireRole(["owner", "kitchen"]);
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
@@ -26,10 +28,12 @@ export default async function AdminOrderDetailPage({
 
   if (!order) notFound();
 
-  const canMarkFulfilled = order.status === "paid";
-  const canCancel = order.status === "pending_payment" || order.status === "paid";
+  const isOwner = session.role === "owner";
+  const canMarkFulfilled = isOwner && order.status === "paid";
+  const canCancel =
+    isOwner && (order.status === "pending_payment" || order.status === "paid");
   const canMarkPaidCash =
-    order.paymentMethod === "cash" && order.status === "pending_payment";
+    isOwner && order.paymentMethod === "cash" && order.status === "pending_payment";
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">

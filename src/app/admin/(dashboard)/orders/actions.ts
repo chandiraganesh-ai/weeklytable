@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/dal";
+import { requireRole } from "@/lib/dal";
 
 const MANUAL_STATUSES = ["fulfilled", "cancelled"] as const;
 type ManualStatus = (typeof MANUAL_STATUSES)[number];
@@ -14,7 +14,7 @@ function isManualStatus(value: string): value is ManualStatus {
 // Payment status ("paid") is webhook-controlled and never set here —
 // this only handles the real-world, human-decided statuses.
 export async function setOrderStatus(orderId: string, status: string) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   if (!isManualStatus(status)) {
     throw new Error(`Cannot manually set status to "${status}".`);
   }
@@ -27,7 +27,7 @@ export async function setOrderStatus(orderId: string, status: string) {
 // Stripe webhook — strictly gated to cash-on-delivery orders so this can
 // never be used to shortcut a real Stripe payment's verification.
 export async function markOrderPaidCash(orderId: string) {
-  await requireAdminSession();
+  await requireRole(["owner"]);
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     select: { paymentMethod: true, status: true },
@@ -47,7 +47,7 @@ export async function markOrderPaidCash(orderId: string) {
 // Per-meal fulfillment — deliberately independent of the order-level
 // "fulfilled" status. No auto-derivation either direction.
 export async function toggleOrderItemFulfilled(orderItemId: string, fulfilled: boolean) {
-  await requireAdminSession();
+  await requireRole(["owner", "kitchen"]);
   const item = await prisma.orderItem.update({
     where: { id: orderItemId },
     data: { fulfilled },

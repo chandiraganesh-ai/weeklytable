@@ -48,6 +48,15 @@ enum DietaryTag {
   high_protein @map("high-protein")
 }
 
+// owner: full access, including admin-user management. kitchen: orders +
+// upcoming-deliveries report + per-meal fulfillment, no menu/pricing/
+// settings edits. delivery: read-only upcoming-deliveries report only.
+enum AdminRole {
+  owner
+  kitchen
+  delivery
+}
+
 model Dish {
   id          String      @id @default(uuid())
   name        String      @unique
@@ -167,8 +176,16 @@ model OrderItem {
 }
 
 model AdminUser {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String    @id @default(uuid())
+  email        String    @unique
   passwordHash String
-  createdAt    DateTime @default(now())
+  role         AdminRole @default(owner)
+
+  // Deactivated accounts can't log in (checked at login) and lose access
+  // immediately even on an existing session (checked on every admin
+  // request — see requireAdminSession). Never hard-deleted, so historical
+  // actions still trace back to a named account.
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
 }

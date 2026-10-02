@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import PlanForm from "@/components/admin/PlanForm";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/dal";
 import { updatePlan } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export default async function EditPlanPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireRole(["owner"]);
   const { id } = await params;
   const plan = await prisma.plan.findUnique({ where: { id } });
   if (!plan) notFound();

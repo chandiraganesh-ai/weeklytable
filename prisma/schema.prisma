@@ -88,6 +88,13 @@ model Plan {
   isActive  Boolean @default(true)
   sortOrder Int     @default(0)
 
+  // When true, mealCount is a MINIMUM rather than an exact count — the
+  // customer can select more meals than mealCount, each extra one billed
+  // at this plan's per-meal rate (priceGbp / mealCount). Lets one tier
+  // ("5+ meals a week") cover any larger count instead of needing a
+  // separate fixed-price tier for every possible size.
+  allowExtraMeals Boolean @default(false)
+
   orders Order[]
 
   createdAt DateTime @default(now())

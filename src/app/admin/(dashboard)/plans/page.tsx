@@ -39,7 +39,10 @@ export default async function AdminPlansPage() {
           {plans.map((plan) => (
             <tr key={plan.id} className="border-b border-neutral-100">
               <td className="py-2 pr-4">{plan.label}</td>
-              <td className="py-2 pr-4">{plan.mealCount}</td>
+              <td className="py-2 pr-4">
+                {plan.mealCount}
+                {plan.allowExtraMeals ? "+" : ""}
+              </td>
               <td className="py-2 pr-4">{formatGbp(plan.priceGbp)}</td>
               <td className="py-2 pr-4">{plan.isActive ? "Yes" : "No"}</td>
               <td className="flex gap-3 py-2 pr-4">

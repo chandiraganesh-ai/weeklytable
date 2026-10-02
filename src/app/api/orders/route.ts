@@ -142,11 +142,26 @@ export async function POST(req: NextRequest) {
   if (!plan || !plan.isActive) {
     return badRequest("That plan is no longer available.");
   }
-  if (items.length !== plan.mealCount) {
+  if (plan.allowExtraMeals) {
+    if (items.length < plan.mealCount) {
+      return badRequest(
+        `${plan.label} requires at least ${plan.mealCount} meal${plan.mealCount === 1 ? "" : "s"}.`,
+      );
+    }
+  } else if (items.length !== plan.mealCount) {
     return badRequest(
       `${plan.label} requires exactly ${plan.mealCount} meal${plan.mealCount === 1 ? "" : "s"}.`,
     );
   }
+
+  // Fixed plans charge the plan's own price regardless of item count
+  // (already validated as exact above). Open-ended plans ("5+ meals")
+  // charge per meal at the plan's own rate — never trust a client-supplied
+  // total, this is the sole source of truth for what gets charged.
+  const pricePerMealGbp = Math.round(plan.priceGbp / plan.mealCount);
+  const totalPriceGbp = plan.allowExtraMeals
+    ? pricePerMealGbp * items.length
+    : plan.priceGbp;
 
   const uniqueDishIds = Array.from(new Set(items.map((i) => i.dishId)));
   const activeDishes = await prisma.dish.findMany({
@@ -185,7 +200,7 @@ export async function POST(req: NextRequest) {
       data: {
         planId: plan.id,
         planLabelSnapshot: plan.label,
-        planPriceGbpSnapshot: plan.priceGbp,
+        planPriceGbpSnapshot: totalPriceGbp,
         contactName,
         contactPhone,
         contactEmail,
@@ -246,7 +261,7 @@ export async function POST(req: NextRequest) {
         {
           price_data: {
             currency: "gbp",
-            unit_amount: plan.priceGbp,
+            unit_amount: totalPriceGbp,
             product_data: { name: productName },
           },
           quantity: 1,
@@ -280,7 +295,7 @@ export async function POST(req: NextRequest) {
       id: orderId,
       planId: plan.id,
       planLabelSnapshot: plan.label,
-      planPriceGbpSnapshot: plan.priceGbp,
+      planPriceGbpSnapshot: totalPriceGbp,
       contactName,
       contactPhone,
       contactEmail,

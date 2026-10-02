@@ -38,6 +38,7 @@ export type PlanView = {
   label: string;
   mealCount: number;
   priceGbp: number;
+  allowExtraMeals: boolean;
 };
 
 type SelectedMeal = { dishId: string; date: string; time: string };
@@ -114,6 +115,17 @@ export default function MenuBrowser({
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) ?? null;
   const mealCount = selectedPlan?.mealCount ?? 0;
+  const allowExtraMeals = selectedPlan?.allowExtraMeals ?? false;
+  // For open-ended plans, selectedMeals.length can exceed mealCount — the
+  // total scales with it rather than staying fixed at the plan's own price.
+  const pricePerMealGbp = selectedPlan
+    ? Math.round(selectedPlan.priceGbp / selectedPlan.mealCount)
+    : 0;
+  const totalPriceGbp = selectedPlan
+    ? allowExtraMeals
+      ? pricePerMealGbp * selectedMeals.length
+      : selectedPlan.priceGbp
+    : 0;
 
   // The 3-meal plan is the natural middle option to steer customers toward;
   // fall back to the middle tier by position if that exact size isn't offered.
@@ -159,7 +171,7 @@ export default function MenuBrowser({
       if (exists) {
         return current.filter((m) => !(m.dishId === dishId && m.date === date));
       }
-      if (current.length >= mealCount) return current; // bounded by the chosen tier
+      if (!allowExtraMeals && current.length >= mealCount) return current; // bounded by the chosen tier
       return [...current, { dishId, date, time }];
     });
   }
@@ -187,21 +199,25 @@ export default function MenuBrowser({
     contactEmail.trim() !== "" &&
     deliveryAddress.trim() !== "";
 
-  const canCheckout =
-    selectedPlan !== null &&
-    selectedMeals.length === mealCount &&
-    hasContactDetails;
+  const mealsSatisfied = allowExtraMeals
+    ? selectedMeals.length >= mealCount
+    : selectedMeals.length === mealCount;
+
+  const canCheckout = selectedPlan !== null && mealsSatisfied && hasContactDetails;
 
   // What's still needed before checkout is possible — shown in the order
   // summary card so the customer doesn't have to scan the whole page to
   // work out what's missing.
   const nextStepMessage = (() => {
     if (!selectedPlan) return "Choose a plan above to get started.";
-    if (selectedMeals.length < mealCount) {
+    if (!mealsSatisfied) {
       const remaining = mealCount - selectedMeals.length;
       return `Select ${remaining} more meal${remaining === 1 ? "" : "s"} to continue.`;
     }
     if (!hasContactDetails) return "Fill in your delivery details to complete your order.";
+    if (allowExtraMeals) {
+      return `Add more meals anytime — each extra one is ${formatGbp(pricePerMealGbp)}.`;
+    }
     return null;
   })();
 
@@ -284,6 +300,7 @@ export default function MenuBrowser({
                     plan.id === selectedPlanId ? "text-white/90" : "text-espresso/70"
                   }`}
                 >
+                  {plan.allowExtraMeals ? "From " : ""}
                   {formatGbp(plan.priceGbp)}
                   <span className={plan.id === selectedPlanId ? "text-white/70" : "text-espresso/50"}>
                     {" "}
@@ -299,11 +316,13 @@ export default function MenuBrowser({
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold text-espresso">
-            <StepBadge number={2} done={mealCount > 0 && selectedMeals.length === mealCount} />
+            <StepBadge number={2} done={mealCount > 0 && mealsSatisfied} />
             Pick a meal for each day
           </h2>
           <span className="text-sm text-espresso/60">
-            {selectedMeals.length} of {mealCount} selected
+            {allowExtraMeals
+              ? `${selectedMeals.length} selected (min ${mealCount})`
+              : `${selectedMeals.length} of ${mealCount} selected`}
           </span>
         </div>
         <p className="text-sm text-espresso/70">
@@ -463,7 +482,7 @@ export default function MenuBrowser({
               (m) => m.dishId === dish.id && m.date === activeDate,
             );
             const isDisabled =
-              !isSelected && selectedMeals.length >= mealCount;
+              !isSelected && !allowExtraMeals && selectedMeals.length >= mealCount;
             return (
               <button
                 key={dish.id}
@@ -637,13 +656,15 @@ export default function MenuBrowser({
                 <div className="flex items-center justify-between">
                   <dt className="text-espresso/60">Meals selected</dt>
                   <dd className="font-medium text-espresso">
-                    {selectedMeals.length} of {mealCount}
+                    {allowExtraMeals
+                      ? `${selectedMeals.length} (min ${mealCount})`
+                      : `${selectedMeals.length} of ${mealCount}`}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-card-border pt-2">
                   <dt className="font-semibold text-espresso">Total</dt>
                   <dd className="font-semibold text-terracotta">
-                    {formatGbp(selectedPlan.priceGbp)}
+                    {formatGbp(totalPriceGbp)}
                   </dd>
                 </div>
               </dl>
@@ -686,8 +707,8 @@ export default function MenuBrowser({
                   ? "Placing order…"
                   : "Redirecting to payment…"
                 : paymentMethod === "cash"
-                  ? `Place order — pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""} cash on delivery`
-                  : `Pay ${selectedPlan ? formatGbp(selectedPlan.priceGbp) : ""}`}
+                  ? `Place order — pay ${selectedPlan ? formatGbp(totalPriceGbp) : ""} cash on delivery`
+                  : `Pay ${selectedPlan ? formatGbp(totalPriceGbp) : ""}`}
             </button>
 
             <p className="flex items-center gap-1.5 text-xs text-espresso/50">

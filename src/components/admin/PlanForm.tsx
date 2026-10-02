@@ -4,6 +4,7 @@ type PlanFormValues = {
   priceGbp: number;
   sortOrder: number;
   isActive: boolean;
+  allowExtraMeals: boolean;
 };
 
 export default function PlanForm({
@@ -69,6 +70,15 @@ export default function PlanForm({
           defaultChecked={initial?.isActive ?? true}
         />
         Active (shown to customers)
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          name="allowExtraMeals"
+          defaultChecked={initial?.allowExtraMeals ?? false}
+        />
+        Allow more than the meal count, billed per extra meal at this
+        plan&apos;s per-meal rate (e.g. &quot;5+ meals a week&quot;)
       </label>
       <button
         type="submit"

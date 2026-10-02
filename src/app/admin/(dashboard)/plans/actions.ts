@@ -11,6 +11,7 @@ function readPlanFields(formData: FormData) {
   const priceGbpStr = String(formData.get("priceGbp") ?? "").trim();
   const sortOrder = Number(formData.get("sortOrder") ?? 0);
   const isActive = formData.get("isActive") === "on";
+  const allowExtraMeals = formData.get("allowExtraMeals") === "on";
 
   if (!label || !Number.isFinite(mealCount) || mealCount < 1) {
     throw new Error("Label and a valid meal count are required.");
@@ -20,7 +21,7 @@ function readPlanFields(formData: FormData) {
     throw new Error("A valid price is required.");
   }
 
-  return { label, mealCount, priceGbp, sortOrder, isActive };
+  return { label, mealCount, priceGbp, sortOrder, isActive, allowExtraMeals };
 }
 
 export async function createPlan(formData: FormData) {

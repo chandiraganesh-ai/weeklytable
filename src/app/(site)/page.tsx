@@ -43,7 +43,7 @@ export default function HomePage() {
         />
         <div className="relative mx-auto max-w-6xl px-6 py-24 text-cream sm:py-32">
           <h1 className="max-w-xl font-serif text-4xl font-medium leading-tight sm:text-6xl">
-            Homemade food, made with care.
+            Good food. More time for you.
           </h1>
           <p className="mt-5 max-w-lg text-lg text-cream/90">
             Good food should be fresh, nourishing, affordable and enjoyable —
@@ -148,7 +148,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-20">
         <h2 className="font-serif text-3xl font-medium text-espresso sm:text-4xl">
-          Good food. More time for you.
+          Homemade food, made with care.
         </h2>
         <p className="mx-auto mt-3 max-w-md text-espresso/70">
           No shopping. No cooking. No cleaning. Just fresh, tasty homemade

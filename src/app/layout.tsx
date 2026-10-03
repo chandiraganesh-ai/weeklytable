@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Newsreader, Plus_Jakarta_Sans } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 // Loaded globally so the CSS variables exist everywhere, but the
@@ -44,8 +42,6 @@ export default function RootLayout({
       </head>
       <body className={`${newsreader.variable} ${jakarta.variable}`}>
         {children}
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );

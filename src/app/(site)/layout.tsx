@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SUPPORT_PHONE_DISPLAY, SUPPORT_PHONE_TEL } from "@/lib/contact";
 
@@ -15,8 +16,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
     <div className="flex min-h-screen flex-col bg-cream font-sans text-espresso antialiased">
       <header className="sticky top-0 z-20 border-b border-card-border bg-cream/90 backdrop-blur-sm">
         <nav className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
-          <Link href="/" className="font-serif text-lg font-medium text-espresso">
-            Weekly Table
+          <Link href="/" className="flex items-center">
+            <Image src="/logo.svg" alt="Weekly Table" width={400} height={120} className="h-12 w-auto" priority />
           </Link>
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-espresso/85">
             {NAV_LINKS.map((link) => (

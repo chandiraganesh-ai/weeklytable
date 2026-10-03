@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="100%" height="100%">
+  <defs>
+    <style>
+      .brand-title {
+        font-family: 'Newsreader', Georgia, serif;
+        font-size: 38px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        fill: #26241e;
+      }
+      .brand-sub {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        fill: #43694f;
+      }
+    </style>
+  </defs>
+
+  <!-- Logo Mark Container -->
+  <g transform="translate(10, 10)">
+    <!-- Background Soft Circular Badge -->
+    <rect x="0" y="0" width="100" height="100" rx="24" fill="#f7f3ea" stroke="#e6e1d5" stroke-width="1.5" />
+
+    <!-- Warm Accent Arch / Cottage Roof Silhouette -->
+    <path d="M 24 54 L 50 30 L 76 54" fill="none" stroke="#c85a32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 32 46.5 L 32 35 L 38 35 L 38 41" fill="none" stroke="#c85a32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Covered Cloche / Hearth Tableware -->
+    <path d="M 33 66 C 33 54, 67 54, 67 66 Z" fill="#e7ded0" stroke="#43694f" stroke-width="2.5" stroke-linejoin="round" />
+    <!-- Cloche handle -->
+    <circle cx="50" cy="53" r="3" fill="#c85a32" />
+    <!-- Platter base -->
+    <rect x="27" y="66" width="46" height="5" rx="2.5" fill="#43694f" />
+
+    <!-- Elegant Steam Swirls -->
+    <path d="M 45 46 Q 43 40 46 35" fill="none" stroke="#c85a32" stroke-width="2" stroke-linecap="round" opacity="0.85" />
+    <path d="M 52 47 Q 56 41 53 34" fill="none" stroke="#c85a32" stroke-width="2" stroke-linecap="round" opacity="0.85" />
+
+    <!-- Mini Fork & Heart accent in the platter center -->
+    <path d="M 50 78 C 50 78 45 74 45 71.5 C 45 69.8 46.8 68.8 48.2 69.8 L 50 71.4 L 51.8 69.8 C 53.2 68.8 55 69.8 55 71.5 C 55 74 50 78 50 78 Z" fill="#c85a32" />
+  </g>
+
+  <!-- Typography Group -->
+  <g transform="translate(130, 25)">
+    <!-- Main Brand Name -->
+    <text x="0" y="44" class="brand-title">Weekly Table</text>
+
+    <!-- Subtitle / Tagline -->
+    <text x="2" y="66" class="brand-sub">Home-Cooked • Scratch Kitchen</text>
+
+    <!-- Subtle organic divider line -->
+    <line x1="2" y1="74" x2="230" y2="74" stroke="#c85a32" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 4" opacity="0.5" />
+  </g>
+</svg>

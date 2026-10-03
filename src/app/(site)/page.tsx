@@ -145,8 +145,10 @@ export default function HomePage() {
           Homemade food, made with care.
         </h2>
         <p className="mx-auto mt-3 max-w-md text-espresso/85">
-          No shopping. No cooking. No cleaning. Just fresh, tasty homemade
-          food delivered to your door.
+          <span className="font-semibold text-espresso">
+            No shopping. No cooking. No cleaning.
+          </span>{" "}
+          Just fresh, tasty homemade food delivered to your door.
         </p>
         <Link
           href="/order"

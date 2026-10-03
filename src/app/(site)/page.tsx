@@ -28,36 +28,50 @@ const FEATURES = [
 export default function HomePage() {
   return (
     <>
-      <section className="relative flex min-h-[560px] items-center overflow-hidden sm:min-h-[640px]">
-        <Image
-          src="https://images.unsplash.com/photo-1696935257293-9ec4f03074a1"
-          alt="A golden-topped homemade shepherd's pie fresh from the oven"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-espresso/80 via-espresso/40 to-espresso/10"
-        />
-        <div className="relative mx-auto max-w-6xl px-6 py-24 text-cream sm:py-32">
-          <h1 className="max-w-xl font-serif text-4xl font-medium leading-tight sm:text-6xl">
-            Good food. More time for you.
-          </h1>
-          <p className="mt-5 max-w-lg text-lg text-cream/95">
-            Good food should be fresh, nourishing, affordable and enjoyable —
-            without the shopping, cooking and washing up. Choose your dishes,
-            pick a day and time for each one, and we&apos;ll bring it to your
-            door hot, across Southend-on-Sea, 7 days a week.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/how-it-works"
-              className="rounded-full bg-terracotta px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-terracotta-dark hover:shadow-md"
-            >
-              How it works
-            </Link>
+      <section className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <h1 className="font-serif text-4xl font-medium leading-tight text-espresso sm:text-6xl">
+              Good food. More time for you.
+            </h1>
+            <p className="mt-5 max-w-lg text-lg text-espresso/85">
+              Good food should be fresh, nourishing, affordable and enjoyable —
+              without the shopping, cooking and washing up. Choose your dishes,
+              pick a day and time for each one, and we&apos;ll bring it to your
+              door hot, across Southend-on-Sea, 7 days a week.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/how-it-works"
+                className="rounded-full bg-terracotta px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-terracotta-dark hover:shadow-md"
+              >
+                How it works
+              </Link>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-espresso/75">
+              <span className="flex items-center gap-1.5">
+                <Icon name="check_circle" className="text-[16px] text-sage" />
+                Freshly prepared
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Icon name="check_circle" className="text-[16px] text-sage" />
+                Southend-on-Sea delivery
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Icon name="check_circle" className="text-[16px] text-sage" />
+                7 days a week
+              </span>
+            </div>
+          </div>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-lg">
+            <Image
+              src="https://images.unsplash.com/photo-1696935257293-9ec4f03074a1"
+              alt="A golden-topped homemade shepherd's pie fresh from the oven"
+              fill
+              priority
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </section>

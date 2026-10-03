@@ -20,9 +20,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <Link href="/" className="flex items-center">
             <Image src="/logo.svg" alt="Weekly Table" width={400} height={120} className="h-12 w-auto" priority />
           </Link>
-          <div className="flex flex-1 flex-wrap items-center justify-evenly gap-4 px-6 text-sm font-bold text-espresso/85">
+          <div className="flex items-center gap-1 rounded-full border border-card-border bg-white/60 px-2 py-1.5 text-sm font-bold text-espresso/85 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="transition hover:text-terracotta">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-full px-4 py-1.5 transition hover:bg-terracotta/10 hover:text-terracotta"
+              >
                 {link.label}
               </Link>
             ))}

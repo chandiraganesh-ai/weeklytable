@@ -297,12 +297,12 @@ export default function MenuBrowser({
                 <div className="font-serif text-lg font-medium">{plan.label}</div>
                 <div
                   className={`text-sm ${
-                    plan.id === selectedPlanId ? "text-white/90" : "text-espresso/70"
+                    plan.id === selectedPlanId ? "text-white/90" : "text-espresso/85"
                   }`}
                 >
                   {plan.allowExtraMeals ? "From " : ""}
                   {formatGbp(plan.priceGbp)}
-                  <span className={plan.id === selectedPlanId ? "text-white/70" : "text-espresso/50"}>
+                  <span className={plan.id === selectedPlanId ? "text-white/70" : "text-espresso/70"}>
                     {" "}
                     ({formatGbp(plan.priceGbp / plan.mealCount)} / meal)
                   </span>
@@ -319,13 +319,13 @@ export default function MenuBrowser({
             <StepBadge number={2} done={mealCount > 0 && mealsSatisfied} />
             Pick a meal for each day
           </h2>
-          <span className="text-sm text-espresso/60">
+          <span className="text-sm text-espresso/75">
             {allowExtraMeals
               ? `${selectedMeals.length} selected (min ${mealCount})`
               : `${selectedMeals.length} of ${mealCount} selected`}
           </span>
         </div>
-        <p className="text-sm text-espresso/70">
+        <p className="text-sm text-espresso/85">
           Choose which day each meal is delivered — not every dish is made
           every day, so the menu below changes as you switch days.
         </p>
@@ -345,13 +345,13 @@ export default function MenuBrowser({
                   <button
                     type="button"
                     onClick={() => removeMeal(i)}
-                    className="text-espresso/50 hover:text-terracotta"
+                    className="text-espresso/70 hover:text-terracotta"
                     aria-label={`Remove ${dishName(meal.dishId)} on ${meal.date}`}
                   >
                     ✕
                   </button>
                 </div>
-                <div className="flex flex-wrap items-center gap-1.5 text-xs text-espresso/60">
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-espresso/75">
                   <Icon name="schedule" className="text-[14px] text-terracotta" />
                   <div className="flex flex-wrap gap-1">
                     {deliveryTimeSlots.map((slot) => (
@@ -406,10 +406,10 @@ export default function MenuBrowser({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="flex items-center gap-1.5 text-sm text-espresso/70">
+          <span className="flex items-center gap-1.5 text-sm text-espresso/85">
             <Icon name="schedule" className="text-[16px] text-terracotta" />
             Delivery time for {formatDayTab(activeDate)}:
-            <span className="text-xs text-espresso/50">
+            <span className="text-xs text-espresso/70">
               (guaranteed {formatGuaranteeWindow(activeTime)})
             </span>
           </span>
@@ -464,13 +464,13 @@ export default function MenuBrowser({
             placeholder="Search dishes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="ml-auto rounded-full border border-card-border bg-white px-4 py-1.5 text-sm text-espresso placeholder:text-espresso/40 focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
+            className="ml-auto rounded-full border border-card-border bg-white px-4 py-1.5 text-sm text-espresso placeholder:text-espresso/60 focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20"
           />
         </div>
 
         {filteredDishes.length === 0 && (
-          <p className="flex items-center gap-2 rounded-xl border border-card-border bg-cream-dim/60 px-4 py-3 text-sm text-espresso/60">
-            <Icon name="search_off" className="shrink-0 text-[20px] text-espresso/40" />
+          <p className="flex items-center gap-2 rounded-xl border border-card-border bg-cream-dim/60 px-4 py-3 text-sm text-espresso/75">
+            <Icon name="search_off" className="shrink-0 text-[20px] text-espresso/60" />
             Nothing matches for this day — try a different category, search
             term, or day tab above.
           </p>
@@ -517,7 +517,7 @@ export default function MenuBrowser({
                   <span className="font-serif text-lg font-medium text-espresso">
                     {dish.name}
                   </span>
-                  <p className="text-sm text-espresso/70">{dish.description}</p>
+                  <p className="text-sm text-espresso/85">{dish.description}</p>
                 </div>
               </button>
             );
@@ -530,7 +530,7 @@ export default function MenuBrowser({
           <StepBadge number={3} done={canCheckout} />
           Delivery &amp; payment
         </h2>
-        <p className="flex items-start gap-1.5 text-sm text-espresso/70">
+        <p className="flex items-start gap-1.5 text-sm text-espresso/85">
           <Icon name="schedule" className="mt-0.5 shrink-0 text-[18px] text-terracotta" />
           <span>
             Order by {formatTime12h(cutoffConfig.cutoffTime)} the day before
@@ -616,7 +616,7 @@ export default function MenuBrowser({
                   <Icon name="credit_card" className="text-[18px] text-terracotta" />
                   <span>
                     Pay by card now
-                    <span className="block text-xs font-normal text-espresso/50">
+                    <span className="block text-xs font-normal text-espresso/70">
                       Visa, Mastercard, Apple Pay
                     </span>
                   </span>
@@ -650,11 +650,11 @@ export default function MenuBrowser({
             {selectedPlan ? (
               <dl className="flex flex-col gap-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <dt className="text-espresso/60">Plan</dt>
+                  <dt className="text-espresso/75">Plan</dt>
                   <dd className="font-medium text-espresso">{selectedPlan.label}</dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-espresso/60">Meals selected</dt>
+                  <dt className="text-espresso/75">Meals selected</dt>
                   <dd className="font-medium text-espresso">
                     {allowExtraMeals
                       ? `${selectedMeals.length} (min ${mealCount})`
@@ -669,13 +669,13 @@ export default function MenuBrowser({
                 </div>
               </dl>
             ) : (
-              <p className="text-sm text-espresso/60">
+              <p className="text-sm text-espresso/75">
                 Choose a plan above to see your order summary.
               </p>
             )}
 
             {nextStepMessage && (
-              <p className="flex items-start gap-1.5 text-sm text-espresso/60">
+              <p className="flex items-start gap-1.5 text-sm text-espresso/75">
                 <Icon name="info" className="mt-0.5 shrink-0 text-[16px]" />
                 {nextStepMessage}
               </p>
@@ -698,7 +698,7 @@ export default function MenuBrowser({
               className={`flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-white shadow-md transition active:scale-[0.98] ${
                 canCheckout && !isSubmitting
                   ? "bg-terracotta hover:bg-terracotta-dark hover:shadow-lg"
-                  : "cursor-not-allowed bg-card-border text-espresso/40 shadow-none"
+                  : "cursor-not-allowed bg-card-border text-espresso/60 shadow-none"
               }`}
             >
               <Icon name="lock" className="text-[18px]" />
@@ -711,13 +711,13 @@ export default function MenuBrowser({
                   : `Pay ${selectedPlan ? formatGbp(totalPriceGbp) : ""}`}
             </button>
 
-            <p className="flex items-center gap-1.5 text-xs text-espresso/50">
+            <p className="flex items-center gap-1.5 text-xs text-espresso/70">
               <Icon name="lock" className="text-[14px]" />
               Secure checkout, encrypted end-to-end.
             </p>
 
             <div className="flex flex-col gap-1.5 border-t border-card-border pt-3">
-              <span className="text-sm text-espresso/60">Need help ordering?</span>
+              <span className="text-sm text-espresso/75">Need help ordering?</span>
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 <a
                   href={SUPPORT_PHONE_TEL}

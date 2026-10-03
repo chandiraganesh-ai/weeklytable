@@ -42,7 +42,7 @@ export default async function AdminDishesPage() {
 
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 text-left text-neutral-500">
+          <tr className="border-b border-neutral-200 text-left text-neutral-700">
             <th className="py-2 pr-4">Name</th>
             <th className="py-2 pr-4">Category</th>
             <th className="py-2 pr-4">Dietary tag</th>

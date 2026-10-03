@@ -37,7 +37,7 @@ export default function HowItWorksPage() {
         <h1 className="font-serif text-4xl font-medium text-espresso sm:text-5xl">
           How it works
         </h1>
-        <p className="mx-auto mt-3 max-w-md text-espresso/70">
+        <p className="mx-auto mt-3 max-w-md text-espresso/85">
           Five steps from browsing the menu to a hot meal on your doorstep.
         </p>
       </header>
@@ -64,7 +64,7 @@ export default function HowItWorksPage() {
                 <h2 className="mt-1 font-serif text-xl font-medium text-espresso">
                   {step.title}
                 </h2>
-                <p className="mt-2 text-espresso/70">{step.body}</p>
+                <p className="mt-2 text-espresso/85">{step.body}</p>
               </div>
             </li>
           ))}

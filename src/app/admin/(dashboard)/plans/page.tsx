@@ -27,7 +27,7 @@ export default async function AdminPlansPage() {
 
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 text-left text-neutral-500">
+          <tr className="border-b border-neutral-200 text-left text-neutral-700">
             <th className="py-2 pr-4">Label</th>
             <th className="py-2 pr-4">Meals</th>
             <th className="py-2 pr-4">Price</th>

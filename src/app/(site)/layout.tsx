@@ -18,7 +18,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <Link href="/" className="font-serif text-lg font-medium text-espresso">
             Weekly Table
           </Link>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-espresso/70">
+          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-espresso/85">
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href} className="transition hover:text-terracotta">
                 {link.label}
@@ -36,7 +36,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t border-card-border bg-cream-dim/40 px-6 py-8 text-sm text-espresso/60">
+      <footer className="border-t border-card-border bg-cream-dim/40 px-6 py-8 text-sm text-espresso/75">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
           <div>
             <p className="font-serif text-base font-medium text-espresso">Weekly Table</p>

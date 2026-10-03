@@ -98,7 +98,7 @@ export default async function UpcomingOrdersPage() {
               </h3>
 
               {dayItems.length === 0 ? (
-                <p className="mt-2 text-sm text-neutral-500">
+                <p className="mt-2 text-sm text-neutral-700">
                   No deliveries scheduled.
                 </p>
               ) : (
@@ -112,7 +112,7 @@ export default async function UpcomingOrdersPage() {
 
                   <table className="mt-3 w-full border-collapse text-sm">
                     <thead>
-                      <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                      <tr className="border-b border-neutral-200 text-left text-neutral-700">
                         <th className="py-1.5 pr-3">Time</th>
                         <th className="py-1.5 pr-3">Dish</th>
                         <th className="py-1.5 pr-3">Customer</th>
@@ -127,7 +127,7 @@ export default async function UpcomingOrdersPage() {
                       {sortedByTime.map((item) => (
                         <tr
                           key={item.id}
-                          className={`border-b border-neutral-100 ${item.fulfilled ? "text-neutral-400" : ""}`}
+                          className={`border-b border-neutral-100 ${item.fulfilled ? "text-neutral-600" : ""}`}
                         >
                           <td className="py-1.5 pr-3 whitespace-nowrap">
                             {item.deliveryTime

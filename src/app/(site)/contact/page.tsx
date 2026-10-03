@@ -23,7 +23,7 @@ export default async function ContactPage() {
         <h1 className="font-serif text-4xl font-medium text-espresso sm:text-5xl">
           Get in touch
         </h1>
-        <p className="mx-auto mt-3 max-w-md text-espresso/70">
+        <p className="mx-auto mt-3 max-w-md text-espresso/85">
           Questions about an order, a delivery, or the menu? We're happy to
           help.
         </p>
@@ -42,7 +42,7 @@ export default async function ContactPage() {
               <h2 className="font-serif text-lg font-medium text-espresso">
                 Call us
               </h2>
-              <p className="mt-1 text-espresso/70">{SUPPORT_PHONE_DISPLAY}</p>
+              <p className="mt-1 text-espresso/85">{SUPPORT_PHONE_DISPLAY}</p>
             </div>
           </a>
 
@@ -59,7 +59,7 @@ export default async function ContactPage() {
               <h2 className="font-serif text-lg font-medium text-espresso">
                 WhatsApp
               </h2>
-              <p className="mt-1 text-espresso/70">{SUPPORT_PHONE_DISPLAY}</p>
+              <p className="mt-1 text-espresso/85">{SUPPORT_PHONE_DISPLAY}</p>
             </div>
           </a>
         </div>
@@ -74,7 +74,7 @@ export default async function ContactPage() {
                 <h2 className="font-serif text-lg font-medium text-espresso">
                   Delivery hours
                 </h2>
-                <p className="mt-1 text-espresso/70">
+                <p className="mt-1 text-espresso/85">
                   Every day, between {formatTime12h(cutoffConfig.deliveryWindowStart)} and{" "}
                   {formatTime12h(cutoffConfig.deliveryWindowEnd)}. Choose your
                   exact time slot when you order.
@@ -92,7 +92,7 @@ export default async function ContactPage() {
                 <h2 className="font-serif text-lg font-medium text-espresso">
                   Delivery area
                 </h2>
-                <p className="mt-1 text-espresso/70">
+                <p className="mt-1 text-espresso/85">
                   We currently deliver across Southend-on-Sea, 7 days a week.
                 </p>
               </div>

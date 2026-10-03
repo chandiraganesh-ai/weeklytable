@@ -45,7 +45,7 @@ export default function HomePage() {
           <h1 className="max-w-xl font-serif text-4xl font-medium leading-tight sm:text-6xl">
             Good food. More time for you.
           </h1>
-          <p className="mt-5 max-w-lg text-lg text-cream/90">
+          <p className="mt-5 max-w-lg text-lg text-cream/95">
             Good food should be fresh, nourishing, affordable and enjoyable —
             without the shopping, cooking and washing up. Choose your dishes,
             pick a day and time for each one, and we&apos;ll bring it to your
@@ -72,7 +72,7 @@ export default function HomePage() {
               <h3 className="font-serif text-lg font-medium text-espresso">
                 {feature.title}
               </h3>
-              <p className="text-sm text-espresso/70">{feature.body}</p>
+              <p className="text-sm text-espresso/85">{feature.body}</p>
             </div>
           ))}
         </div>
@@ -87,14 +87,14 @@ export default function HomePage() {
             <h2 className="mt-2 font-serif text-3xl font-medium text-espresso sm:text-4xl">
               Food that feels like it was made at home.
             </h2>
-            <p className="mt-4 text-espresso/70">
+            <p className="mt-4 text-espresso/85">
               Born from our experience creating and serving food through The
               Burrito and Tasty Bowls-Globowl, Weekly Table brings together
               the things we love most about food: quality ingredients,
               generous portions, exciting flavours and, above all, food that
               feels like it has been made at home.
             </p>
-            <p className="mt-4 text-espresso/70">
+            <p className="mt-4 text-espresso/85">
               Our menu brings together proper British homemade favourites —
               Cottage Pie, Shepherd&apos;s Pie, Roast Chicken, Fish &amp;
               Chips, Steak &amp; Onion Pie, Sausage &amp; Mash — alongside
@@ -104,7 +104,7 @@ export default function HomePage() {
               there&apos;s plenty of choice while keeping the comfort and
               quality of a freshly prepared meal.
             </p>
-            <p className="mt-4 text-espresso/70">
+            <p className="mt-4 text-espresso/85">
               We prepare every meal with care and deliver it hot to your door
               across Southend-on-Sea, 7 days a week — with options for
               vegetarian, vegan and gluten-free diets, so there&apos;s
@@ -114,25 +114,25 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
               <p className="font-serif text-3xl font-medium text-terracotta">1hr</p>
-              <p className="mt-1 text-sm text-espresso/70">
+              <p className="mt-1 text-sm text-espresso/85">
                 Delivery guarantee window
               </p>
             </div>
             <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
               <p className="font-serif text-3xl font-medium text-terracotta">7</p>
-              <p className="mt-1 text-sm text-espresso/70">
+              <p className="mt-1 text-sm text-espresso/85">
                 Days a week we deliver
               </p>
             </div>
             <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
               <p className="font-serif text-3xl font-medium text-terracotta">3</p>
-              <p className="mt-1 text-sm text-espresso/70">
+              <p className="mt-1 text-sm text-espresso/85">
                 Diets catered for — veggie, vegan &amp; gluten-free
               </p>
             </div>
             <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
               <p className="font-serif text-3xl font-medium text-terracotta">0</p>
-              <p className="mt-1 text-sm text-espresso/70">
+              <p className="mt-1 text-sm text-espresso/85">
                 Subscriptions required
               </p>
             </div>
@@ -144,7 +144,7 @@ export default function HomePage() {
         <h2 className="font-serif text-3xl font-medium text-espresso sm:text-4xl">
           Homemade food, made with care.
         </h2>
-        <p className="mx-auto mt-3 max-w-md text-espresso/70">
+        <p className="mx-auto mt-3 max-w-md text-espresso/85">
           No shopping. No cooking. No cleaning. Just fresh, tasty homemade
           food delivered to your door.
         </p>

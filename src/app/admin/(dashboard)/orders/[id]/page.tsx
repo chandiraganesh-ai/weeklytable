@@ -45,43 +45,43 @@ export default async function AdminOrderDetailPage({
 
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <div>
-          <dt className="text-neutral-500">Status</dt>
+          <dt className="text-neutral-700">Status</dt>
           <dd className="font-medium">{order.status}</dd>
         </div>
         <div>
-          <dt className="text-neutral-500">Plan</dt>
+          <dt className="text-neutral-700">Plan</dt>
           <dd>
             {order.planLabelSnapshot} ({formatGbp(order.planPriceGbpSnapshot)})
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500">Payment method</dt>
+          <dt className="text-neutral-700">Payment method</dt>
           <dd className="capitalize">
             {order.paymentMethod === "cash" ? "Cash on delivery" : "Card (Stripe)"}
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500">Placed</dt>
+          <dt className="text-neutral-700">Placed</dt>
           <dd>{order.createdAt.toISOString()}</dd>
         </div>
         <div className="col-span-2">
-          <dt className="text-neutral-500">Contact</dt>
+          <dt className="text-neutral-700">Contact</dt>
           <dd>
             {order.contactName} · {order.contactPhone} · {order.contactEmail}
           </dd>
         </div>
         <div className="col-span-2">
-          <dt className="text-neutral-500">Delivery address</dt>
+          <dt className="text-neutral-700">Delivery address</dt>
           <dd>{order.deliveryAddress}</dd>
         </div>
         {order.notes && (
           <div className="col-span-2">
-            <dt className="text-neutral-500">Notes</dt>
+            <dt className="text-neutral-700">Notes</dt>
             <dd>{order.notes}</dd>
           </div>
         )}
         <div className="col-span-2">
-          <dt className="text-neutral-500">Meals</dt>
+          <dt className="text-neutral-700">Meals</dt>
           <dd>
             <ul className="flex flex-col gap-1">
               {order.items.map((item) => (
@@ -92,7 +92,7 @@ export default async function AdminOrderDetailPage({
                     </span>{" "}
                     — {item.dishNameSnapshot}
                     {item.deliveryTime && (
-                      <span className="block text-xs text-neutral-500">
+                      <span className="block text-xs text-neutral-700">
                         Requested {formatTime12h(item.deliveryTime)} · guaranteed{" "}
                         {formatGuaranteeWindow(item.deliveryTime)}
                       </span>
@@ -122,8 +122,8 @@ export default async function AdminOrderDetailPage({
         </div>
         {order.paymentMethod === "stripe" && (
           <div className="col-span-2">
-            <dt className="text-neutral-500">Stripe</dt>
-            <dd className="break-all text-xs text-neutral-500">
+            <dt className="text-neutral-700">Stripe</dt>
+            <dd className="break-all text-xs text-neutral-700">
               Session: {order.stripeCheckoutSessionId}
               <br />
               Payment intent: {order.stripePaymentIntentId ?? "—"}

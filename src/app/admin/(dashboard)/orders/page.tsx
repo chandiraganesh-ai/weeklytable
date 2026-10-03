@@ -110,7 +110,7 @@ export default async function AdminOrdersPage({
 
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 text-left text-neutral-500">
+          <tr className="border-b border-neutral-200 text-left text-neutral-700">
             <th className="py-2 pr-4">Placed</th>
             <th className="py-2 pr-4">Delivery dates</th>
             <th className="py-2 pr-4">Plan</th>
@@ -157,7 +157,7 @@ export default async function AdminOrdersPage({
           })}
           {orders.length === 0 && (
             <tr>
-              <td colSpan={7} className="py-6 text-center text-neutral-500">
+              <td colSpan={7} className="py-6 text-center text-neutral-700">
                 No orders match these filters.
               </td>
             </tr>

@@ -9,7 +9,7 @@ export default function OrderConfirmedPage() {
         Order confirmation
       </h1>
       <div className="rounded-xl border border-card-border bg-white p-6 shadow-sm">
-        <Suspense fallback={<p className="text-espresso/60">Loading…</p>}>
+        <Suspense fallback={<p className="text-espresso/75">Loading…</p>}>
           <ConfirmationView />
         </Suspense>
       </div>

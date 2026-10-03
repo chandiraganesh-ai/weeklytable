@@ -24,7 +24,7 @@ export default async function AdminUsersPage() {
 
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 text-left text-neutral-500">
+          <tr className="border-b border-neutral-200 text-left text-neutral-700">
             <th className="py-2 pr-4">Email</th>
             <th className="py-2 pr-4">Role</th>
             <th className="py-2 pr-4">Status</th>
@@ -38,7 +38,7 @@ export default async function AdminUsersPage() {
               <td className="py-2 pr-4">
                 {admin.email}
                 {admin.id === session.adminId && (
-                  <span className="ml-1 text-xs text-neutral-400">(you)</span>
+                  <span className="ml-1 text-xs text-neutral-600">(you)</span>
                 )}
               </td>
               <td className="py-2 pr-4">
@@ -58,7 +58,7 @@ export default async function AdminUsersPage() {
                 {admin.isActive ? (
                   <span className="text-green-700">Active</span>
                 ) : (
-                  <span className="text-neutral-400">Deactivated</span>
+                  <span className="text-neutral-600">Deactivated</span>
                 )}
               </td>
               <td className="py-2 pr-4">

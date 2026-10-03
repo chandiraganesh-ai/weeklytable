@@ -66,12 +66,12 @@ export default function ConfirmationView() {
   }, [sessionId, attempts, order?.status, order?.paymentMethod]);
 
   if (!sessionId) {
-    return <p className="text-espresso/60">No order reference was given.</p>;
+    return <p className="text-espresso/75">No order reference was given.</p>;
   }
 
   if (notFound) {
     return (
-      <p className="text-espresso/60">
+      <p className="text-espresso/75">
         We couldn&apos;t find that order. If you were just charged, contact
         us and we&apos;ll sort it out.
       </p>
@@ -81,7 +81,7 @@ export default function ConfirmationView() {
   if (!order || (order.paymentMethod !== "cash" && order.status === "pending_payment")) {
     const gaveUp = attempts >= MAX_POLL_ATTEMPTS;
     return (
-      <p className="text-espresso/60">
+      <p className="text-espresso/75">
         {gaveUp
           ? "Your payment is still processing. This can take a minute — check your email for a receipt, or contact us if you're unsure."
           : "Confirming your payment…"}
@@ -97,13 +97,13 @@ export default function ConfirmationView() {
       </p>
       <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
         <div>
-          <dt className="text-espresso/60">Plan</dt>
+          <dt className="text-espresso/75">Plan</dt>
           <dd>
             {order.planLabel} (£{(order.priceGbp / 100).toFixed(2)})
           </dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="text-espresso/60">Meals</dt>
+          <dt className="text-espresso/75">Meals</dt>
           <dd>
             <ul className="mt-1 flex flex-col gap-1">
               {order.meals.map((meal, i) => (
@@ -111,7 +111,7 @@ export default function ConfirmationView() {
                   <span className="font-medium text-terracotta">{meal.deliveryDate}</span>{" "}
                   — {meal.dishName}
                   {meal.deliveryTime && (
-                    <span className="block text-xs text-espresso/60">
+                    <span className="block text-xs text-espresso/75">
                       Requested {formatTime12h(meal.deliveryTime)} · guaranteed{" "}
                       {formatGuaranteeWindow(meal.deliveryTime)}
                     </span>
@@ -122,17 +122,17 @@ export default function ConfirmationView() {
           </dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="text-espresso/60">Delivering to</dt>
+          <dt className="text-espresso/75">Delivering to</dt>
           <dd>{order.deliveryAddress}</dd>
         </div>
         {order.notes && (
           <div className="sm:col-span-2">
-            <dt className="text-espresso/60">Notes</dt>
+            <dt className="text-espresso/75">Notes</dt>
             <dd>{order.notes}</dd>
           </div>
         )}
       </dl>
-      <p className="text-sm text-espresso/60">
+      <p className="text-sm text-espresso/75">
         {order.paymentMethod === "cash"
           ? "Please have the exact amount ready — payment is collected on delivery."
           : `A confirmation has been sent to ${order.contactEmail}.`}

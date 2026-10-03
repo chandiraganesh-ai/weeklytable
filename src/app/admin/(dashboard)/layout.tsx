@@ -40,9 +40,9 @@ export default async function AdminDashboardLayout({
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3 text-sm text-neutral-500">
+        <div className="flex items-center gap-3 text-sm text-neutral-700">
           <span>
-            {session.email} <span className="text-neutral-400">({session.role})</span>
+            {session.email} <span className="text-neutral-600">({session.role})</span>
           </span>
           <LogoutButton />
         </div>

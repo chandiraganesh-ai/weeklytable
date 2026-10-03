@@ -4,6 +4,7 @@ import { SUPPORT_PHONE_DISPLAY, SUPPORT_PHONE_TEL } from "@/lib/contact";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
+  { href: "/menu", label: "Menu" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/contact", label: "Contact" },
 ];
@@ -19,7 +20,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <Link href="/" className="flex items-center">
             <Image src="/logo.svg" alt="Weekly Table" width={400} height={120} className="h-12 w-auto" priority />
           </Link>
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-espresso/85">
+          <div className="flex flex-1 flex-wrap items-center justify-evenly gap-4 px-6 text-sm font-bold text-espresso/85">
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href} className="transition hover:text-terracotta">
                 {link.label}

@@ -53,14 +53,8 @@ export default function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href="/order"
-              className="rounded-full bg-terracotta px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-terracotta-dark hover:shadow-md"
-            >
-              Order now
-            </Link>
-            <Link
               href="/how-it-works"
-              className="rounded-full border border-cream/40 px-6 py-3 text-base font-semibold text-cream transition hover:border-cream hover:bg-cream/10"
+              className="rounded-full bg-terracotta px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-terracotta-dark hover:shadow-md"
             >
               How it works
             </Link>

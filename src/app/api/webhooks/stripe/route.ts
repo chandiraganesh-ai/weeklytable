@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
+import { sendOrderConfirmationEmail } from "@/lib/mail";
 
 // The only place an Order's status ever becomes "paid". Never trust the
 // success_url redirect for this — a signed, Stripe-verified webhook event
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    await prisma.order.update({
+    const paidOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
         status: "paid",
@@ -54,7 +55,10 @@ export async function POST(req: NextRequest) {
             ? session.payment_intent
             : (session.payment_intent?.id ?? null),
       },
+      include: { items: true },
     });
+
+    await sendOrderConfirmationEmail(paidOrder);
   }
 
   return NextResponse.json({ received: true });

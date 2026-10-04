@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { isDeliveryDateEligible, getWeekday } from "@/lib/cutoff";
 import { isDeliveryTimeValid } from "@/lib/deliveryTime";
+import { sendOrderConfirmationEmail } from "@/lib/mail";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -217,7 +218,10 @@ export async function POST(req: NextRequest) {
           })),
         },
       },
+      include: { items: true },
     });
+
+    await sendOrderConfirmationEmail(order);
 
     return NextResponse.json({ orderId: order.id });
   }
